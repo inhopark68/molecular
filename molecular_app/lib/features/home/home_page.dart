@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-
-import '../../database/app_database.dart';
-import '../cell_lines/cell_line_list_page.dart';
-import '../plasmids/plasmid_list_page.dart';
-import '../records/cloning_form_page.dart';
-import '../records/experiment_form_page.dart';
-import '../records/experiment_list_page.dart';
-import '../records/purification_form_page.dart';
-import '../records/sirna_form_page.dart';
-import '../records/transfection_form_page.dart';
+import 'package:molecular_work_app/database/app_database.dart';
+import 'package:molecular_work_app/features/cell_lines/cell_line_list_page.dart';
+import 'package:molecular_work_app/features/plasmids/plasmid_list_page.dart';
+import 'package:molecular_work_app/features/records/cloning_form_page.dart';
+import 'package:molecular_work_app/features/records/experiment_form_page.dart';
+import 'package:molecular_work_app/features/records/experiment_list_page.dart';
+import 'package:molecular_work_app/features/records/purification_form_page.dart';
+import 'package:molecular_work_app/features/records/sirna_form_page.dart';
+import 'package:molecular_work_app/features/records/transfection_form_page.dart';
 
 class HomePage extends StatelessWidget {
   final AppDatabase database;

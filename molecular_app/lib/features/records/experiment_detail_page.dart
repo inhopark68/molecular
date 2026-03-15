@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../database/app_database.dart';
-import 'cloning_form_page.dart';
-import 'purification_form_page.dart';
-import 'sirna_form_page.dart';
-import 'transfection_form_page.dart';
+import 'package:molecular_work_app/database/app_database.dart';
+import 'package:molecular_work_app/features/records/cloning_form_page.dart';
+import 'package:molecular_work_app/features/records/purification_form_page.dart';
+import 'package:molecular_work_app/features/records/sirna_form_page.dart';
+import 'package:molecular_work_app/features/records/transfection_form_page.dart';
 
 class ExperimentDetailPage extends StatelessWidget {
   final AppDatabase database;
@@ -148,7 +148,9 @@ class ExperimentDetailPage extends StatelessWidget {
             builder: (context) {
               if (snapshot.connectionState == ConnectionState.waiting &&
                   !snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
               }
 
               if (snapshot.hasError) {
@@ -195,8 +197,9 @@ class ExperimentDetailPage extends StatelessWidget {
                               children: [
                                 Text(
                                   record.title,
-                                  style:
-                                      Theme.of(context).textTheme.headlineSmall,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
@@ -218,6 +221,11 @@ class ExperimentDetailPage extends StatelessWidget {
                     context,
                     'Created At',
                     _formatDateTime(record.createdAt),
+                  ),
+                  _section(
+                    context,
+                    'Updated At',
+                    _formatDateTime(record.updatedAt),
                   ),
                 ],
               );
