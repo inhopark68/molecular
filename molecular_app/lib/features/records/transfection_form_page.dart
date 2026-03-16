@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:molecular_app/database/app_database.dart';
+import 'package:drift/drift.dart' show Value;
 
 class TransfectionFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -71,8 +72,8 @@ class _TransfectionFormPageState extends State<TransfectionFormPage> {
         ExperimentRecordsCompanion.insert(
           title: _titleController.text.trim(),
           module: 'Transfection',
-          createdAt: now,
-          updatedAt: now,
+          createdAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now()),
         ),
       );
 

@@ -448,7 +448,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<Plasmid?> watchPlasmidById(int id) {
-    return (select(plasmids)..where((t) => t.id.equals(id))).watchSingleOrNull();
+    return (select(plasmids)..where((t) => t.id.equals(id)))
+        .watchSingleOrNull();
   }
 
   Future<bool> updatePlasmid(Plasmid plasmid) {
@@ -498,7 +499,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<CellLine?> watchCellLineById(int id) {
-    return (select(cellLines)..where((t) => t.id.equals(id))).watchSingleOrNull();
+    return (select(cellLines)..where((t) => t.id.equals(id)))
+        .watchSingleOrNull();
   }
 
   Future<bool> updateCellLine(CellLine cellLine) {

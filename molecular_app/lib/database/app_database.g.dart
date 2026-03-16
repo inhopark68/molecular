@@ -18,28 +18,16 @@ class $ExperimentRecordsTable extends ExperimentRecords
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _moduleMeta = const VerificationMeta('module');
-  @override
-  late final GeneratedColumn<String> module = GeneratedColumn<String>(
-      'module', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _objectiveMeta =
-      const VerificationMeta('objective');
+  static const VerificationMeta _moduleMeta = const VerificationMeta('module');
   @override
-  late final GeneratedColumn<String> objective = GeneratedColumn<String>(
-      'objective', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sampleIdMeta =
-      const VerificationMeta('sampleId');
-  @override
-  late final GeneratedColumn<String> sampleId = GeneratedColumn<String>(
-      'sample_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> module = GeneratedColumn<String>(
+      'module', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -50,16 +38,20 @@ class $ExperimentRecordsTable extends ExperimentRecords
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
       'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, module, title, objective, sampleId, notes, createdAt, updatedAt];
+      [id, title, module, notes, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -73,25 +65,17 @@ class $ExperimentRecordsTable extends ExperimentRecords
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('module')) {
-      context.handle(_moduleMeta,
-          module.isAcceptableOrUnknown(data['module']!, _moduleMeta));
-    } else if (isInserting) {
-      context.missing(_moduleMeta);
-    }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
-    if (data.containsKey('objective')) {
-      context.handle(_objectiveMeta,
-          objective.isAcceptableOrUnknown(data['objective']!, _objectiveMeta));
-    }
-    if (data.containsKey('sample_id')) {
-      context.handle(_sampleIdMeta,
-          sampleId.isAcceptableOrUnknown(data['sample_id']!, _sampleIdMeta));
+    if (data.containsKey('module')) {
+      context.handle(_moduleMeta,
+          module.isAcceptableOrUnknown(data['module']!, _moduleMeta));
+    } else if (isInserting) {
+      context.missing(_moduleMeta);
     }
     if (data.containsKey('notes')) {
       context.handle(
@@ -100,14 +84,10 @@ class $ExperimentRecordsTable extends ExperimentRecords
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -120,14 +100,10 @@ class $ExperimentRecordsTable extends ExperimentRecords
     return ExperimentRecord(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      module: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}module'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      objective: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}objective']),
-      sampleId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}sample_id']),
+      module: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}module'])!,
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
       createdAt: attachedDatabase.typeMapping
@@ -146,19 +122,15 @@ class $ExperimentRecordsTable extends ExperimentRecords
 class ExperimentRecord extends DataClass
     implements Insertable<ExperimentRecord> {
   final int id;
-  final String module;
   final String title;
-  final String? objective;
-  final String? sampleId;
+  final String module;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
   const ExperimentRecord(
       {required this.id,
-      required this.module,
       required this.title,
-      this.objective,
-      this.sampleId,
+      required this.module,
       this.notes,
       required this.createdAt,
       required this.updatedAt});
@@ -166,14 +138,8 @@ class ExperimentRecord extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['module'] = Variable<String>(module);
     map['title'] = Variable<String>(title);
-    if (!nullToAbsent || objective != null) {
-      map['objective'] = Variable<String>(objective);
-    }
-    if (!nullToAbsent || sampleId != null) {
-      map['sample_id'] = Variable<String>(sampleId);
-    }
+    map['module'] = Variable<String>(module);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -185,14 +151,8 @@ class ExperimentRecord extends DataClass
   ExperimentRecordsCompanion toCompanion(bool nullToAbsent) {
     return ExperimentRecordsCompanion(
       id: Value(id),
-      module: Value(module),
       title: Value(title),
-      objective: objective == null && nullToAbsent
-          ? const Value.absent()
-          : Value(objective),
-      sampleId: sampleId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sampleId),
+      module: Value(module),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       createdAt: Value(createdAt),
@@ -205,10 +165,8 @@ class ExperimentRecord extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ExperimentRecord(
       id: serializer.fromJson<int>(json['id']),
-      module: serializer.fromJson<String>(json['module']),
       title: serializer.fromJson<String>(json['title']),
-      objective: serializer.fromJson<String?>(json['objective']),
-      sampleId: serializer.fromJson<String?>(json['sampleId']),
+      module: serializer.fromJson<String>(json['module']),
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -219,10 +177,8 @@ class ExperimentRecord extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'module': serializer.toJson<String>(module),
       'title': serializer.toJson<String>(title),
-      'objective': serializer.toJson<String?>(objective),
-      'sampleId': serializer.toJson<String?>(sampleId),
+      'module': serializer.toJson<String>(module),
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -231,19 +187,15 @@ class ExperimentRecord extends DataClass
 
   ExperimentRecord copyWith(
           {int? id,
-          String? module,
           String? title,
-          Value<String?> objective = const Value.absent(),
-          Value<String?> sampleId = const Value.absent(),
+          String? module,
           Value<String?> notes = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       ExperimentRecord(
         id: id ?? this.id,
-        module: module ?? this.module,
         title: title ?? this.title,
-        objective: objective.present ? objective.value : this.objective,
-        sampleId: sampleId.present ? sampleId.value : this.sampleId,
+        module: module ?? this.module,
         notes: notes.present ? notes.value : this.notes,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -251,10 +203,8 @@ class ExperimentRecord extends DataClass
   ExperimentRecord copyWithCompanion(ExperimentRecordsCompanion data) {
     return ExperimentRecord(
       id: data.id.present ? data.id.value : this.id,
-      module: data.module.present ? data.module.value : this.module,
       title: data.title.present ? data.title.value : this.title,
-      objective: data.objective.present ? data.objective.value : this.objective,
-      sampleId: data.sampleId.present ? data.sampleId.value : this.sampleId,
+      module: data.module.present ? data.module.value : this.module,
       notes: data.notes.present ? data.notes.value : this.notes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -265,10 +215,8 @@ class ExperimentRecord extends DataClass
   String toString() {
     return (StringBuffer('ExperimentRecord(')
           ..write('id: $id, ')
-          ..write('module: $module, ')
           ..write('title: $title, ')
-          ..write('objective: $objective, ')
-          ..write('sampleId: $sampleId, ')
+          ..write('module: $module, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -277,17 +225,15 @@ class ExperimentRecord extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, module, title, objective, sampleId, notes, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(id, title, module, notes, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ExperimentRecord &&
           other.id == this.id &&
-          other.module == this.module &&
           other.title == this.title &&
-          other.objective == this.objective &&
-          other.sampleId == this.sampleId &&
+          other.module == this.module &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -295,52 +241,40 @@ class ExperimentRecord extends DataClass
 
 class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
   final Value<int> id;
-  final Value<String> module;
   final Value<String> title;
-  final Value<String?> objective;
-  final Value<String?> sampleId;
+  final Value<String> module;
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const ExperimentRecordsCompanion({
     this.id = const Value.absent(),
-    this.module = const Value.absent(),
     this.title = const Value.absent(),
-    this.objective = const Value.absent(),
-    this.sampleId = const Value.absent(),
+    this.module = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   ExperimentRecordsCompanion.insert({
     this.id = const Value.absent(),
-    required String module,
     required String title,
-    this.objective = const Value.absent(),
-    this.sampleId = const Value.absent(),
+    required String module,
     this.notes = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  })  : module = Value(module),
-        title = Value(title),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  })  : title = Value(title),
+        module = Value(module);
   static Insertable<ExperimentRecord> custom({
     Expression<int>? id,
-    Expression<String>? module,
     Expression<String>? title,
-    Expression<String>? objective,
-    Expression<String>? sampleId,
+    Expression<String>? module,
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (module != null) 'module': module,
       if (title != null) 'title': title,
-      if (objective != null) 'objective': objective,
-      if (sampleId != null) 'sample_id': sampleId,
+      if (module != null) 'module': module,
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -349,19 +283,15 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
 
   ExperimentRecordsCompanion copyWith(
       {Value<int>? id,
-      Value<String>? module,
       Value<String>? title,
-      Value<String?>? objective,
-      Value<String?>? sampleId,
+      Value<String>? module,
       Value<String?>? notes,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
     return ExperimentRecordsCompanion(
       id: id ?? this.id,
-      module: module ?? this.module,
       title: title ?? this.title,
-      objective: objective ?? this.objective,
-      sampleId: sampleId ?? this.sampleId,
+      module: module ?? this.module,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -374,17 +304,11 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (module.present) {
-      map['module'] = Variable<String>(module.value);
-    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
-    if (objective.present) {
-      map['objective'] = Variable<String>(objective.value);
-    }
-    if (sampleId.present) {
-      map['sample_id'] = Variable<String>(sampleId.value);
+    if (module.present) {
+      map['module'] = Variable<String>(module.value);
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
@@ -402,10 +326,8 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
   String toString() {
     return (StringBuffer('ExperimentRecordsCompanion(')
           ..write('id: $id, ')
-          ..write('module: $module, ')
           ..write('title: $title, ')
-          ..write('objective: $objective, ')
-          ..write('sampleId: $sampleId, ')
+          ..write('module: $module, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -434,77 +356,228 @@ class $CloningDetailsTable extends CloningDetails
   @override
   late final GeneratedColumn<int> experimentRecordId = GeneratedColumn<int>(
       'experiment_record_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _vectorMeta = const VerificationMeta('vector');
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES experiment_records (id)'));
+  static const VerificationMeta _experimentTitleMeta =
+      const VerificationMeta('experimentTitle');
   @override
-  late final GeneratedColumn<String> vector = GeneratedColumn<String>(
-      'vector', aliasedName, true,
+  late final GeneratedColumn<String> experimentTitle = GeneratedColumn<String>(
+      'experiment_title', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _insertNameMeta =
-      const VerificationMeta('insertName');
+  static const VerificationMeta _researcherMeta =
+      const VerificationMeta('researcher');
   @override
-  late final GeneratedColumn<String> insertName = GeneratedColumn<String>(
-      'insert_name', aliasedName, true,
+  late final GeneratedColumn<String> researcher = GeneratedColumn<String>(
+      'researcher', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
+  static const VerificationMeta _experimentDateMeta =
+      const VerificationMeta('experimentDate');
   @override
-  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
-      'tag', aliasedName, true,
+  late final GeneratedColumn<DateTime> experimentDate =
+      GeneratedColumn<DateTime>('experiment_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _plasmidNameMeta =
+      const VerificationMeta('plasmidName');
+  @override
+  late final GeneratedColumn<String> plasmidName = GeneratedColumn<String>(
+      'plasmid_name', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _selectionMarkerMeta =
-      const VerificationMeta('selectionMarker');
+  static const VerificationMeta _plasmidFrameMeta =
+      const VerificationMeta('plasmidFrame');
   @override
-  late final GeneratedColumn<String> selectionMarker = GeneratedColumn<String>(
-      'selection_marker', aliasedName, true,
+  late final GeneratedColumn<String> plasmidFrame = GeneratedColumn<String>(
+      'plasmid_frame', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _expectedConstructSizeMeta =
-      const VerificationMeta('expectedConstructSize');
+  static const VerificationMeta _insertDirectionMeta =
+      const VerificationMeta('insertDirection');
   @override
-  late final GeneratedColumn<String> expectedConstructSize =
-      GeneratedColumn<String>('expected_construct_size', aliasedName, true,
+  late final GeneratedColumn<String> insertDirection = GeneratedColumn<String>(
+      'insert_direction', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _vectorNotesMeta =
+      const VerificationMeta('vectorNotes');
+  @override
+  late final GeneratedColumn<String> vectorNotes = GeneratedColumn<String>(
+      'vector_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _fivePrimeRestrictionSiteMeta =
+      const VerificationMeta('fivePrimeRestrictionSite');
+  @override
+  late final GeneratedColumn<String> fivePrimeRestrictionSite =
+      GeneratedColumn<String>('five_prime_restriction_site', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _cloneIdMeta =
-      const VerificationMeta('cloneId');
+  static const VerificationMeta _threePrimeRestrictionSiteMeta =
+      const VerificationMeta('threePrimeRestrictionSite');
   @override
-  late final GeneratedColumn<String> cloneId = GeneratedColumn<String>(
-      'clone_id', aliasedName, true,
+  late final GeneratedColumn<String> threePrimeRestrictionSite =
+      GeneratedColumn<String>('three_prime_restriction_site', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _geneNameMeta =
+      const VerificationMeta('geneName');
+  @override
+  late final GeneratedColumn<String> geneName = GeneratedColumn<String>(
+      'gene_name', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _screeningResultMeta =
-      const VerificationMeta('screeningResult');
+  static const VerificationMeta _insertLengthBpMeta =
+      const VerificationMeta('insertLengthBp');
   @override
-  late final GeneratedColumn<String> screeningResult = GeneratedColumn<String>(
-      'screening_result', aliasedName, true,
+  late final GeneratedColumn<int> insertLengthBp = GeneratedColumn<int>(
+      'insert_length_bp', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _geneSequenceMeta =
+      const VerificationMeta('geneSequence');
+  @override
+  late final GeneratedColumn<String> geneSequence = GeneratedColumn<String>(
+      'gene_sequence', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sequencingResultMeta =
-      const VerificationMeta('sequencingResult');
+  static const VerificationMeta _geneSourceMeta =
+      const VerificationMeta('geneSource');
   @override
-  late final GeneratedColumn<String> sequencingResult = GeneratedColumn<String>(
-      'sequencing_result', aliasedName, true,
+  late final GeneratedColumn<String> geneSource = GeneratedColumn<String>(
+      'gene_source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hostBacteriaMeta =
+      const VerificationMeta('hostBacteria');
+  @override
+  late final GeneratedColumn<String> hostBacteria = GeneratedColumn<String>(
+      'host_bacteria', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _selectionAntibioticMeta =
+      const VerificationMeta('selectionAntibiotic');
+  @override
+  late final GeneratedColumn<String> selectionAntibiotic =
+      GeneratedColumn<String>('selection_antibiotic', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _positiveCloneCountMeta =
+      const VerificationMeta('positiveCloneCount');
+  @override
+  late final GeneratedColumn<int> positiveCloneCount = GeneratedColumn<int>(
+      'positive_clone_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _transformationNotesMeta =
+      const VerificationMeta('transformationNotes');
+  @override
+  late final GeneratedColumn<String> transformationNotes =
+      GeneratedColumn<String>('transformation_notes', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _screeningMethodMeta =
+      const VerificationMeta('screeningMethod');
+  @override
+  late final GeneratedColumn<String> screeningMethod = GeneratedColumn<String>(
+      'screening_method', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _selectedColonyMeta =
+      const VerificationMeta('selectedColony');
+  @override
+  late final GeneratedColumn<String> selectedColony = GeneratedColumn<String>(
+      'selected_colony', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _restrictionDigestConfirmedMeta =
+      const VerificationMeta('restrictionDigestConfirmed');
+  @override
+  late final GeneratedColumn<bool> restrictionDigestConfirmed =
+      GeneratedColumn<bool>('restriction_digest_confirmed', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("restriction_digest_confirmed" IN (0, 1))'),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _colonyPcrConfirmedMeta =
+      const VerificationMeta('colonyPcrConfirmed');
+  @override
+  late final GeneratedColumn<bool> colonyPcrConfirmed = GeneratedColumn<bool>(
+      'colony_pcr_confirmed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("colony_pcr_confirmed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _miniprepDoneMeta =
+      const VerificationMeta('miniprepDone');
+  @override
+  late final GeneratedColumn<bool> miniprepDone = GeneratedColumn<bool>(
+      'miniprep_done', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("miniprep_done" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _screeningNotesMeta =
+      const VerificationMeta('screeningNotes');
+  @override
+  late final GeneratedColumn<String> screeningNotes = GeneratedColumn<String>(
+      'screening_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _insertSequenceVerifiedMeta =
+      const VerificationMeta('insertSequenceVerified');
+  @override
+  late final GeneratedColumn<bool> insertSequenceVerified =
+      GeneratedColumn<bool>('insert_sequence_verified', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("insert_sequence_verified" IN (0, 1))'),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _sequencingPrimerMeta =
+      const VerificationMeta('sequencingPrimer');
+  @override
+  late final GeneratedColumn<String> sequencingPrimer = GeneratedColumn<String>(
+      'sequencing_primer', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _additionalNotesMeta =
+      const VerificationMeta('additionalNotes');
+  @override
+  late final GeneratedColumn<String> additionalNotes = GeneratedColumn<String>(
+      'additional_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
       'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns => [
         id,
         experimentRecordId,
-        vector,
-        insertName,
-        tag,
-        selectionMarker,
-        expectedConstructSize,
-        cloneId,
-        screeningResult,
-        sequencingResult,
+        experimentTitle,
+        researcher,
+        experimentDate,
+        plasmidName,
+        plasmidFrame,
+        insertDirection,
+        vectorNotes,
+        fivePrimeRestrictionSite,
+        threePrimeRestrictionSite,
+        geneName,
+        insertLengthBp,
+        geneSequence,
+        geneSource,
+        hostBacteria,
+        selectionAntibiotic,
+        positiveCloneCount,
+        transformationNotes,
+        screeningMethod,
+        selectedColony,
+        restrictionDigestConfirmed,
+        colonyPcrConfirmed,
+        miniprepDone,
+        screeningNotes,
+        insertSequenceVerified,
+        sequencingPrimer,
+        additionalNotes,
         createdAt,
         updatedAt
       ];
@@ -529,59 +602,170 @@ class $CloningDetailsTable extends CloningDetails
     } else if (isInserting) {
       context.missing(_experimentRecordIdMeta);
     }
-    if (data.containsKey('vector')) {
-      context.handle(_vectorMeta,
-          vector.isAcceptableOrUnknown(data['vector']!, _vectorMeta));
-    }
-    if (data.containsKey('insert_name')) {
+    if (data.containsKey('experiment_title')) {
       context.handle(
-          _insertNameMeta,
-          insertName.isAcceptableOrUnknown(
-              data['insert_name']!, _insertNameMeta));
+          _experimentTitleMeta,
+          experimentTitle.isAcceptableOrUnknown(
+              data['experiment_title']!, _experimentTitleMeta));
     }
-    if (data.containsKey('tag')) {
+    if (data.containsKey('researcher')) {
       context.handle(
-          _tagMeta, tag.isAcceptableOrUnknown(data['tag']!, _tagMeta));
+          _researcherMeta,
+          researcher.isAcceptableOrUnknown(
+              data['researcher']!, _researcherMeta));
     }
-    if (data.containsKey('selection_marker')) {
+    if (data.containsKey('experiment_date')) {
       context.handle(
-          _selectionMarkerMeta,
-          selectionMarker.isAcceptableOrUnknown(
-              data['selection_marker']!, _selectionMarkerMeta));
+          _experimentDateMeta,
+          experimentDate.isAcceptableOrUnknown(
+              data['experiment_date']!, _experimentDateMeta));
     }
-    if (data.containsKey('expected_construct_size')) {
+    if (data.containsKey('plasmid_name')) {
       context.handle(
-          _expectedConstructSizeMeta,
-          expectedConstructSize.isAcceptableOrUnknown(
-              data['expected_construct_size']!, _expectedConstructSizeMeta));
+          _plasmidNameMeta,
+          plasmidName.isAcceptableOrUnknown(
+              data['plasmid_name']!, _plasmidNameMeta));
     }
-    if (data.containsKey('clone_id')) {
-      context.handle(_cloneIdMeta,
-          cloneId.isAcceptableOrUnknown(data['clone_id']!, _cloneIdMeta));
-    }
-    if (data.containsKey('screening_result')) {
+    if (data.containsKey('plasmid_frame')) {
       context.handle(
-          _screeningResultMeta,
-          screeningResult.isAcceptableOrUnknown(
-              data['screening_result']!, _screeningResultMeta));
+          _plasmidFrameMeta,
+          plasmidFrame.isAcceptableOrUnknown(
+              data['plasmid_frame']!, _plasmidFrameMeta));
     }
-    if (data.containsKey('sequencing_result')) {
+    if (data.containsKey('insert_direction')) {
       context.handle(
-          _sequencingResultMeta,
-          sequencingResult.isAcceptableOrUnknown(
-              data['sequencing_result']!, _sequencingResultMeta));
+          _insertDirectionMeta,
+          insertDirection.isAcceptableOrUnknown(
+              data['insert_direction']!, _insertDirectionMeta));
+    }
+    if (data.containsKey('vector_notes')) {
+      context.handle(
+          _vectorNotesMeta,
+          vectorNotes.isAcceptableOrUnknown(
+              data['vector_notes']!, _vectorNotesMeta));
+    }
+    if (data.containsKey('five_prime_restriction_site')) {
+      context.handle(
+          _fivePrimeRestrictionSiteMeta,
+          fivePrimeRestrictionSite.isAcceptableOrUnknown(
+              data['five_prime_restriction_site']!,
+              _fivePrimeRestrictionSiteMeta));
+    }
+    if (data.containsKey('three_prime_restriction_site')) {
+      context.handle(
+          _threePrimeRestrictionSiteMeta,
+          threePrimeRestrictionSite.isAcceptableOrUnknown(
+              data['three_prime_restriction_site']!,
+              _threePrimeRestrictionSiteMeta));
+    }
+    if (data.containsKey('gene_name')) {
+      context.handle(_geneNameMeta,
+          geneName.isAcceptableOrUnknown(data['gene_name']!, _geneNameMeta));
+    }
+    if (data.containsKey('insert_length_bp')) {
+      context.handle(
+          _insertLengthBpMeta,
+          insertLengthBp.isAcceptableOrUnknown(
+              data['insert_length_bp']!, _insertLengthBpMeta));
+    }
+    if (data.containsKey('gene_sequence')) {
+      context.handle(
+          _geneSequenceMeta,
+          geneSequence.isAcceptableOrUnknown(
+              data['gene_sequence']!, _geneSequenceMeta));
+    }
+    if (data.containsKey('gene_source')) {
+      context.handle(
+          _geneSourceMeta,
+          geneSource.isAcceptableOrUnknown(
+              data['gene_source']!, _geneSourceMeta));
+    }
+    if (data.containsKey('host_bacteria')) {
+      context.handle(
+          _hostBacteriaMeta,
+          hostBacteria.isAcceptableOrUnknown(
+              data['host_bacteria']!, _hostBacteriaMeta));
+    }
+    if (data.containsKey('selection_antibiotic')) {
+      context.handle(
+          _selectionAntibioticMeta,
+          selectionAntibiotic.isAcceptableOrUnknown(
+              data['selection_antibiotic']!, _selectionAntibioticMeta));
+    }
+    if (data.containsKey('positive_clone_count')) {
+      context.handle(
+          _positiveCloneCountMeta,
+          positiveCloneCount.isAcceptableOrUnknown(
+              data['positive_clone_count']!, _positiveCloneCountMeta));
+    }
+    if (data.containsKey('transformation_notes')) {
+      context.handle(
+          _transformationNotesMeta,
+          transformationNotes.isAcceptableOrUnknown(
+              data['transformation_notes']!, _transformationNotesMeta));
+    }
+    if (data.containsKey('screening_method')) {
+      context.handle(
+          _screeningMethodMeta,
+          screeningMethod.isAcceptableOrUnknown(
+              data['screening_method']!, _screeningMethodMeta));
+    }
+    if (data.containsKey('selected_colony')) {
+      context.handle(
+          _selectedColonyMeta,
+          selectedColony.isAcceptableOrUnknown(
+              data['selected_colony']!, _selectedColonyMeta));
+    }
+    if (data.containsKey('restriction_digest_confirmed')) {
+      context.handle(
+          _restrictionDigestConfirmedMeta,
+          restrictionDigestConfirmed.isAcceptableOrUnknown(
+              data['restriction_digest_confirmed']!,
+              _restrictionDigestConfirmedMeta));
+    }
+    if (data.containsKey('colony_pcr_confirmed')) {
+      context.handle(
+          _colonyPcrConfirmedMeta,
+          colonyPcrConfirmed.isAcceptableOrUnknown(
+              data['colony_pcr_confirmed']!, _colonyPcrConfirmedMeta));
+    }
+    if (data.containsKey('miniprep_done')) {
+      context.handle(
+          _miniprepDoneMeta,
+          miniprepDone.isAcceptableOrUnknown(
+              data['miniprep_done']!, _miniprepDoneMeta));
+    }
+    if (data.containsKey('screening_notes')) {
+      context.handle(
+          _screeningNotesMeta,
+          screeningNotes.isAcceptableOrUnknown(
+              data['screening_notes']!, _screeningNotesMeta));
+    }
+    if (data.containsKey('insert_sequence_verified')) {
+      context.handle(
+          _insertSequenceVerifiedMeta,
+          insertSequenceVerified.isAcceptableOrUnknown(
+              data['insert_sequence_verified']!, _insertSequenceVerifiedMeta));
+    }
+    if (data.containsKey('sequencing_primer')) {
+      context.handle(
+          _sequencingPrimerMeta,
+          sequencingPrimer.isAcceptableOrUnknown(
+              data['sequencing_primer']!, _sequencingPrimerMeta));
+    }
+    if (data.containsKey('additional_notes')) {
+      context.handle(
+          _additionalNotesMeta,
+          additionalNotes.isAcceptableOrUnknown(
+              data['additional_notes']!, _additionalNotesMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -596,23 +780,62 @@ class $CloningDetailsTable extends CloningDetails
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       experimentRecordId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}experiment_record_id'])!,
-      vector: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}vector']),
-      insertName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}insert_name']),
-      tag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tag']),
-      selectionMarker: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}selection_marker']),
-      expectedConstructSize: attachedDatabase.typeMapping.read(
+      experimentTitle: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}experiment_title']),
+      researcher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}researcher']),
+      experimentDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}experiment_date']),
+      plasmidName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}plasmid_name']),
+      plasmidFrame: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}plasmid_frame']),
+      insertDirection: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}insert_direction']),
+      vectorNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}vector_notes']),
+      fivePrimeRestrictionSite: attachedDatabase.typeMapping.read(
           DriftSqlType.string,
-          data['${effectivePrefix}expected_construct_size']),
-      cloneId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}clone_id']),
-      screeningResult: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}screening_result']),
-      sequencingResult: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}sequencing_result']),
+          data['${effectivePrefix}five_prime_restriction_site']),
+      threePrimeRestrictionSite: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}three_prime_restriction_site']),
+      geneName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gene_name']),
+      insertLengthBp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}insert_length_bp']),
+      geneSequence: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gene_sequence']),
+      geneSource: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gene_source']),
+      hostBacteria: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}host_bacteria']),
+      selectionAntibiotic: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}selection_antibiotic']),
+      positiveCloneCount: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}positive_clone_count']),
+      transformationNotes: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}transformation_notes']),
+      screeningMethod: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}screening_method']),
+      selectedColony: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}selected_colony']),
+      restrictionDigestConfirmed: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}restriction_digest_confirmed'])!,
+      colonyPcrConfirmed: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}colony_pcr_confirmed'])!,
+      miniprepDone: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}miniprep_done'])!,
+      screeningNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}screening_notes']),
+      insertSequenceVerified: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}insert_sequence_verified'])!,
+      sequencingPrimer: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}sequencing_primer']),
+      additionalNotes: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}additional_notes']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -629,27 +852,63 @@ class $CloningDetailsTable extends CloningDetails
 class CloningDetail extends DataClass implements Insertable<CloningDetail> {
   final int id;
   final int experimentRecordId;
-  final String? vector;
-  final String? insertName;
-  final String? tag;
-  final String? selectionMarker;
-  final String? expectedConstructSize;
-  final String? cloneId;
-  final String? screeningResult;
-  final String? sequencingResult;
+  final String? experimentTitle;
+  final String? researcher;
+  final DateTime? experimentDate;
+  final String? plasmidName;
+  final String? plasmidFrame;
+  final String? insertDirection;
+  final String? vectorNotes;
+  final String? fivePrimeRestrictionSite;
+  final String? threePrimeRestrictionSite;
+  final String? geneName;
+  final int? insertLengthBp;
+  final String? geneSequence;
+  final String? geneSource;
+  final String? hostBacteria;
+  final String? selectionAntibiotic;
+  final int? positiveCloneCount;
+  final String? transformationNotes;
+  final String? screeningMethod;
+  final String? selectedColony;
+  final bool restrictionDigestConfirmed;
+  final bool colonyPcrConfirmed;
+  final bool miniprepDone;
+  final String? screeningNotes;
+  final bool insertSequenceVerified;
+  final String? sequencingPrimer;
+  final String? additionalNotes;
   final DateTime createdAt;
   final DateTime updatedAt;
   const CloningDetail(
       {required this.id,
       required this.experimentRecordId,
-      this.vector,
-      this.insertName,
-      this.tag,
-      this.selectionMarker,
-      this.expectedConstructSize,
-      this.cloneId,
-      this.screeningResult,
-      this.sequencingResult,
+      this.experimentTitle,
+      this.researcher,
+      this.experimentDate,
+      this.plasmidName,
+      this.plasmidFrame,
+      this.insertDirection,
+      this.vectorNotes,
+      this.fivePrimeRestrictionSite,
+      this.threePrimeRestrictionSite,
+      this.geneName,
+      this.insertLengthBp,
+      this.geneSequence,
+      this.geneSource,
+      this.hostBacteria,
+      this.selectionAntibiotic,
+      this.positiveCloneCount,
+      this.transformationNotes,
+      this.screeningMethod,
+      this.selectedColony,
+      required this.restrictionDigestConfirmed,
+      required this.colonyPcrConfirmed,
+      required this.miniprepDone,
+      this.screeningNotes,
+      required this.insertSequenceVerified,
+      this.sequencingPrimer,
+      this.additionalNotes,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -657,29 +916,78 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['experiment_record_id'] = Variable<int>(experimentRecordId);
-    if (!nullToAbsent || vector != null) {
-      map['vector'] = Variable<String>(vector);
+    if (!nullToAbsent || experimentTitle != null) {
+      map['experiment_title'] = Variable<String>(experimentTitle);
     }
-    if (!nullToAbsent || insertName != null) {
-      map['insert_name'] = Variable<String>(insertName);
+    if (!nullToAbsent || researcher != null) {
+      map['researcher'] = Variable<String>(researcher);
     }
-    if (!nullToAbsent || tag != null) {
-      map['tag'] = Variable<String>(tag);
+    if (!nullToAbsent || experimentDate != null) {
+      map['experiment_date'] = Variable<DateTime>(experimentDate);
     }
-    if (!nullToAbsent || selectionMarker != null) {
-      map['selection_marker'] = Variable<String>(selectionMarker);
+    if (!nullToAbsent || plasmidName != null) {
+      map['plasmid_name'] = Variable<String>(plasmidName);
     }
-    if (!nullToAbsent || expectedConstructSize != null) {
-      map['expected_construct_size'] = Variable<String>(expectedConstructSize);
+    if (!nullToAbsent || plasmidFrame != null) {
+      map['plasmid_frame'] = Variable<String>(plasmidFrame);
     }
-    if (!nullToAbsent || cloneId != null) {
-      map['clone_id'] = Variable<String>(cloneId);
+    if (!nullToAbsent || insertDirection != null) {
+      map['insert_direction'] = Variable<String>(insertDirection);
     }
-    if (!nullToAbsent || screeningResult != null) {
-      map['screening_result'] = Variable<String>(screeningResult);
+    if (!nullToAbsent || vectorNotes != null) {
+      map['vector_notes'] = Variable<String>(vectorNotes);
     }
-    if (!nullToAbsent || sequencingResult != null) {
-      map['sequencing_result'] = Variable<String>(sequencingResult);
+    if (!nullToAbsent || fivePrimeRestrictionSite != null) {
+      map['five_prime_restriction_site'] =
+          Variable<String>(fivePrimeRestrictionSite);
+    }
+    if (!nullToAbsent || threePrimeRestrictionSite != null) {
+      map['three_prime_restriction_site'] =
+          Variable<String>(threePrimeRestrictionSite);
+    }
+    if (!nullToAbsent || geneName != null) {
+      map['gene_name'] = Variable<String>(geneName);
+    }
+    if (!nullToAbsent || insertLengthBp != null) {
+      map['insert_length_bp'] = Variable<int>(insertLengthBp);
+    }
+    if (!nullToAbsent || geneSequence != null) {
+      map['gene_sequence'] = Variable<String>(geneSequence);
+    }
+    if (!nullToAbsent || geneSource != null) {
+      map['gene_source'] = Variable<String>(geneSource);
+    }
+    if (!nullToAbsent || hostBacteria != null) {
+      map['host_bacteria'] = Variable<String>(hostBacteria);
+    }
+    if (!nullToAbsent || selectionAntibiotic != null) {
+      map['selection_antibiotic'] = Variable<String>(selectionAntibiotic);
+    }
+    if (!nullToAbsent || positiveCloneCount != null) {
+      map['positive_clone_count'] = Variable<int>(positiveCloneCount);
+    }
+    if (!nullToAbsent || transformationNotes != null) {
+      map['transformation_notes'] = Variable<String>(transformationNotes);
+    }
+    if (!nullToAbsent || screeningMethod != null) {
+      map['screening_method'] = Variable<String>(screeningMethod);
+    }
+    if (!nullToAbsent || selectedColony != null) {
+      map['selected_colony'] = Variable<String>(selectedColony);
+    }
+    map['restriction_digest_confirmed'] =
+        Variable<bool>(restrictionDigestConfirmed);
+    map['colony_pcr_confirmed'] = Variable<bool>(colonyPcrConfirmed);
+    map['miniprep_done'] = Variable<bool>(miniprepDone);
+    if (!nullToAbsent || screeningNotes != null) {
+      map['screening_notes'] = Variable<String>(screeningNotes);
+    }
+    map['insert_sequence_verified'] = Variable<bool>(insertSequenceVerified);
+    if (!nullToAbsent || sequencingPrimer != null) {
+      map['sequencing_primer'] = Variable<String>(sequencingPrimer);
+    }
+    if (!nullToAbsent || additionalNotes != null) {
+      map['additional_notes'] = Variable<String>(additionalNotes);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -690,27 +998,77 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return CloningDetailsCompanion(
       id: Value(id),
       experimentRecordId: Value(experimentRecordId),
-      vector:
-          vector == null && nullToAbsent ? const Value.absent() : Value(vector),
-      insertName: insertName == null && nullToAbsent
+      experimentTitle: experimentTitle == null && nullToAbsent
           ? const Value.absent()
-          : Value(insertName),
-      tag: tag == null && nullToAbsent ? const Value.absent() : Value(tag),
-      selectionMarker: selectionMarker == null && nullToAbsent
+          : Value(experimentTitle),
+      researcher: researcher == null && nullToAbsent
           ? const Value.absent()
-          : Value(selectionMarker),
-      expectedConstructSize: expectedConstructSize == null && nullToAbsent
+          : Value(researcher),
+      experimentDate: experimentDate == null && nullToAbsent
           ? const Value.absent()
-          : Value(expectedConstructSize),
-      cloneId: cloneId == null && nullToAbsent
+          : Value(experimentDate),
+      plasmidName: plasmidName == null && nullToAbsent
           ? const Value.absent()
-          : Value(cloneId),
-      screeningResult: screeningResult == null && nullToAbsent
+          : Value(plasmidName),
+      plasmidFrame: plasmidFrame == null && nullToAbsent
           ? const Value.absent()
-          : Value(screeningResult),
-      sequencingResult: sequencingResult == null && nullToAbsent
+          : Value(plasmidFrame),
+      insertDirection: insertDirection == null && nullToAbsent
           ? const Value.absent()
-          : Value(sequencingResult),
+          : Value(insertDirection),
+      vectorNotes: vectorNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vectorNotes),
+      fivePrimeRestrictionSite: fivePrimeRestrictionSite == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fivePrimeRestrictionSite),
+      threePrimeRestrictionSite:
+          threePrimeRestrictionSite == null && nullToAbsent
+              ? const Value.absent()
+              : Value(threePrimeRestrictionSite),
+      geneName: geneName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geneName),
+      insertLengthBp: insertLengthBp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(insertLengthBp),
+      geneSequence: geneSequence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geneSequence),
+      geneSource: geneSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geneSource),
+      hostBacteria: hostBacteria == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hostBacteria),
+      selectionAntibiotic: selectionAntibiotic == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectionAntibiotic),
+      positiveCloneCount: positiveCloneCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(positiveCloneCount),
+      transformationNotes: transformationNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transformationNotes),
+      screeningMethod: screeningMethod == null && nullToAbsent
+          ? const Value.absent()
+          : Value(screeningMethod),
+      selectedColony: selectedColony == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedColony),
+      restrictionDigestConfirmed: Value(restrictionDigestConfirmed),
+      colonyPcrConfirmed: Value(colonyPcrConfirmed),
+      miniprepDone: Value(miniprepDone),
+      screeningNotes: screeningNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(screeningNotes),
+      insertSequenceVerified: Value(insertSequenceVerified),
+      sequencingPrimer: sequencingPrimer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sequencingPrimer),
+      additionalNotes: additionalNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(additionalNotes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -722,15 +1080,38 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return CloningDetail(
       id: serializer.fromJson<int>(json['id']),
       experimentRecordId: serializer.fromJson<int>(json['experimentRecordId']),
-      vector: serializer.fromJson<String?>(json['vector']),
-      insertName: serializer.fromJson<String?>(json['insertName']),
-      tag: serializer.fromJson<String?>(json['tag']),
-      selectionMarker: serializer.fromJson<String?>(json['selectionMarker']),
-      expectedConstructSize:
-          serializer.fromJson<String?>(json['expectedConstructSize']),
-      cloneId: serializer.fromJson<String?>(json['cloneId']),
-      screeningResult: serializer.fromJson<String?>(json['screeningResult']),
-      sequencingResult: serializer.fromJson<String?>(json['sequencingResult']),
+      experimentTitle: serializer.fromJson<String?>(json['experimentTitle']),
+      researcher: serializer.fromJson<String?>(json['researcher']),
+      experimentDate: serializer.fromJson<DateTime?>(json['experimentDate']),
+      plasmidName: serializer.fromJson<String?>(json['plasmidName']),
+      plasmidFrame: serializer.fromJson<String?>(json['plasmidFrame']),
+      insertDirection: serializer.fromJson<String?>(json['insertDirection']),
+      vectorNotes: serializer.fromJson<String?>(json['vectorNotes']),
+      fivePrimeRestrictionSite:
+          serializer.fromJson<String?>(json['fivePrimeRestrictionSite']),
+      threePrimeRestrictionSite:
+          serializer.fromJson<String?>(json['threePrimeRestrictionSite']),
+      geneName: serializer.fromJson<String?>(json['geneName']),
+      insertLengthBp: serializer.fromJson<int?>(json['insertLengthBp']),
+      geneSequence: serializer.fromJson<String?>(json['geneSequence']),
+      geneSource: serializer.fromJson<String?>(json['geneSource']),
+      hostBacteria: serializer.fromJson<String?>(json['hostBacteria']),
+      selectionAntibiotic:
+          serializer.fromJson<String?>(json['selectionAntibiotic']),
+      positiveCloneCount: serializer.fromJson<int?>(json['positiveCloneCount']),
+      transformationNotes:
+          serializer.fromJson<String?>(json['transformationNotes']),
+      screeningMethod: serializer.fromJson<String?>(json['screeningMethod']),
+      selectedColony: serializer.fromJson<String?>(json['selectedColony']),
+      restrictionDigestConfirmed:
+          serializer.fromJson<bool>(json['restrictionDigestConfirmed']),
+      colonyPcrConfirmed: serializer.fromJson<bool>(json['colonyPcrConfirmed']),
+      miniprepDone: serializer.fromJson<bool>(json['miniprepDone']),
+      screeningNotes: serializer.fromJson<String?>(json['screeningNotes']),
+      insertSequenceVerified:
+          serializer.fromJson<bool>(json['insertSequenceVerified']),
+      sequencingPrimer: serializer.fromJson<String?>(json['sequencingPrimer']),
+      additionalNotes: serializer.fromJson<String?>(json['additionalNotes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -741,15 +1122,35 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'experimentRecordId': serializer.toJson<int>(experimentRecordId),
-      'vector': serializer.toJson<String?>(vector),
-      'insertName': serializer.toJson<String?>(insertName),
-      'tag': serializer.toJson<String?>(tag),
-      'selectionMarker': serializer.toJson<String?>(selectionMarker),
-      'expectedConstructSize':
-          serializer.toJson<String?>(expectedConstructSize),
-      'cloneId': serializer.toJson<String?>(cloneId),
-      'screeningResult': serializer.toJson<String?>(screeningResult),
-      'sequencingResult': serializer.toJson<String?>(sequencingResult),
+      'experimentTitle': serializer.toJson<String?>(experimentTitle),
+      'researcher': serializer.toJson<String?>(researcher),
+      'experimentDate': serializer.toJson<DateTime?>(experimentDate),
+      'plasmidName': serializer.toJson<String?>(plasmidName),
+      'plasmidFrame': serializer.toJson<String?>(plasmidFrame),
+      'insertDirection': serializer.toJson<String?>(insertDirection),
+      'vectorNotes': serializer.toJson<String?>(vectorNotes),
+      'fivePrimeRestrictionSite':
+          serializer.toJson<String?>(fivePrimeRestrictionSite),
+      'threePrimeRestrictionSite':
+          serializer.toJson<String?>(threePrimeRestrictionSite),
+      'geneName': serializer.toJson<String?>(geneName),
+      'insertLengthBp': serializer.toJson<int?>(insertLengthBp),
+      'geneSequence': serializer.toJson<String?>(geneSequence),
+      'geneSource': serializer.toJson<String?>(geneSource),
+      'hostBacteria': serializer.toJson<String?>(hostBacteria),
+      'selectionAntibiotic': serializer.toJson<String?>(selectionAntibiotic),
+      'positiveCloneCount': serializer.toJson<int?>(positiveCloneCount),
+      'transformationNotes': serializer.toJson<String?>(transformationNotes),
+      'screeningMethod': serializer.toJson<String?>(screeningMethod),
+      'selectedColony': serializer.toJson<String?>(selectedColony),
+      'restrictionDigestConfirmed':
+          serializer.toJson<bool>(restrictionDigestConfirmed),
+      'colonyPcrConfirmed': serializer.toJson<bool>(colonyPcrConfirmed),
+      'miniprepDone': serializer.toJson<bool>(miniprepDone),
+      'screeningNotes': serializer.toJson<String?>(screeningNotes),
+      'insertSequenceVerified': serializer.toJson<bool>(insertSequenceVerified),
+      'sequencingPrimer': serializer.toJson<String?>(sequencingPrimer),
+      'additionalNotes': serializer.toJson<String?>(additionalNotes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -758,35 +1159,92 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
   CloningDetail copyWith(
           {int? id,
           int? experimentRecordId,
-          Value<String?> vector = const Value.absent(),
-          Value<String?> insertName = const Value.absent(),
-          Value<String?> tag = const Value.absent(),
-          Value<String?> selectionMarker = const Value.absent(),
-          Value<String?> expectedConstructSize = const Value.absent(),
-          Value<String?> cloneId = const Value.absent(),
-          Value<String?> screeningResult = const Value.absent(),
-          Value<String?> sequencingResult = const Value.absent(),
+          Value<String?> experimentTitle = const Value.absent(),
+          Value<String?> researcher = const Value.absent(),
+          Value<DateTime?> experimentDate = const Value.absent(),
+          Value<String?> plasmidName = const Value.absent(),
+          Value<String?> plasmidFrame = const Value.absent(),
+          Value<String?> insertDirection = const Value.absent(),
+          Value<String?> vectorNotes = const Value.absent(),
+          Value<String?> fivePrimeRestrictionSite = const Value.absent(),
+          Value<String?> threePrimeRestrictionSite = const Value.absent(),
+          Value<String?> geneName = const Value.absent(),
+          Value<int?> insertLengthBp = const Value.absent(),
+          Value<String?> geneSequence = const Value.absent(),
+          Value<String?> geneSource = const Value.absent(),
+          Value<String?> hostBacteria = const Value.absent(),
+          Value<String?> selectionAntibiotic = const Value.absent(),
+          Value<int?> positiveCloneCount = const Value.absent(),
+          Value<String?> transformationNotes = const Value.absent(),
+          Value<String?> screeningMethod = const Value.absent(),
+          Value<String?> selectedColony = const Value.absent(),
+          bool? restrictionDigestConfirmed,
+          bool? colonyPcrConfirmed,
+          bool? miniprepDone,
+          Value<String?> screeningNotes = const Value.absent(),
+          bool? insertSequenceVerified,
+          Value<String?> sequencingPrimer = const Value.absent(),
+          Value<String?> additionalNotes = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       CloningDetail(
         id: id ?? this.id,
         experimentRecordId: experimentRecordId ?? this.experimentRecordId,
-        vector: vector.present ? vector.value : this.vector,
-        insertName: insertName.present ? insertName.value : this.insertName,
-        tag: tag.present ? tag.value : this.tag,
-        selectionMarker: selectionMarker.present
-            ? selectionMarker.value
-            : this.selectionMarker,
-        expectedConstructSize: expectedConstructSize.present
-            ? expectedConstructSize.value
-            : this.expectedConstructSize,
-        cloneId: cloneId.present ? cloneId.value : this.cloneId,
-        screeningResult: screeningResult.present
-            ? screeningResult.value
-            : this.screeningResult,
-        sequencingResult: sequencingResult.present
-            ? sequencingResult.value
-            : this.sequencingResult,
+        experimentTitle: experimentTitle.present
+            ? experimentTitle.value
+            : this.experimentTitle,
+        researcher: researcher.present ? researcher.value : this.researcher,
+        experimentDate:
+            experimentDate.present ? experimentDate.value : this.experimentDate,
+        plasmidName: plasmidName.present ? plasmidName.value : this.plasmidName,
+        plasmidFrame:
+            plasmidFrame.present ? plasmidFrame.value : this.plasmidFrame,
+        insertDirection: insertDirection.present
+            ? insertDirection.value
+            : this.insertDirection,
+        vectorNotes: vectorNotes.present ? vectorNotes.value : this.vectorNotes,
+        fivePrimeRestrictionSite: fivePrimeRestrictionSite.present
+            ? fivePrimeRestrictionSite.value
+            : this.fivePrimeRestrictionSite,
+        threePrimeRestrictionSite: threePrimeRestrictionSite.present
+            ? threePrimeRestrictionSite.value
+            : this.threePrimeRestrictionSite,
+        geneName: geneName.present ? geneName.value : this.geneName,
+        insertLengthBp:
+            insertLengthBp.present ? insertLengthBp.value : this.insertLengthBp,
+        geneSequence:
+            geneSequence.present ? geneSequence.value : this.geneSequence,
+        geneSource: geneSource.present ? geneSource.value : this.geneSource,
+        hostBacteria:
+            hostBacteria.present ? hostBacteria.value : this.hostBacteria,
+        selectionAntibiotic: selectionAntibiotic.present
+            ? selectionAntibiotic.value
+            : this.selectionAntibiotic,
+        positiveCloneCount: positiveCloneCount.present
+            ? positiveCloneCount.value
+            : this.positiveCloneCount,
+        transformationNotes: transformationNotes.present
+            ? transformationNotes.value
+            : this.transformationNotes,
+        screeningMethod: screeningMethod.present
+            ? screeningMethod.value
+            : this.screeningMethod,
+        selectedColony:
+            selectedColony.present ? selectedColony.value : this.selectedColony,
+        restrictionDigestConfirmed:
+            restrictionDigestConfirmed ?? this.restrictionDigestConfirmed,
+        colonyPcrConfirmed: colonyPcrConfirmed ?? this.colonyPcrConfirmed,
+        miniprepDone: miniprepDone ?? this.miniprepDone,
+        screeningNotes:
+            screeningNotes.present ? screeningNotes.value : this.screeningNotes,
+        insertSequenceVerified:
+            insertSequenceVerified ?? this.insertSequenceVerified,
+        sequencingPrimer: sequencingPrimer.present
+            ? sequencingPrimer.value
+            : this.sequencingPrimer,
+        additionalNotes: additionalNotes.present
+            ? additionalNotes.value
+            : this.additionalNotes,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -796,23 +1254,78 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
       experimentRecordId: data.experimentRecordId.present
           ? data.experimentRecordId.value
           : this.experimentRecordId,
-      vector: data.vector.present ? data.vector.value : this.vector,
-      insertName:
-          data.insertName.present ? data.insertName.value : this.insertName,
-      tag: data.tag.present ? data.tag.value : this.tag,
-      selectionMarker: data.selectionMarker.present
-          ? data.selectionMarker.value
-          : this.selectionMarker,
-      expectedConstructSize: data.expectedConstructSize.present
-          ? data.expectedConstructSize.value
-          : this.expectedConstructSize,
-      cloneId: data.cloneId.present ? data.cloneId.value : this.cloneId,
-      screeningResult: data.screeningResult.present
-          ? data.screeningResult.value
-          : this.screeningResult,
-      sequencingResult: data.sequencingResult.present
-          ? data.sequencingResult.value
-          : this.sequencingResult,
+      experimentTitle: data.experimentTitle.present
+          ? data.experimentTitle.value
+          : this.experimentTitle,
+      researcher:
+          data.researcher.present ? data.researcher.value : this.researcher,
+      experimentDate: data.experimentDate.present
+          ? data.experimentDate.value
+          : this.experimentDate,
+      plasmidName:
+          data.plasmidName.present ? data.plasmidName.value : this.plasmidName,
+      plasmidFrame: data.plasmidFrame.present
+          ? data.plasmidFrame.value
+          : this.plasmidFrame,
+      insertDirection: data.insertDirection.present
+          ? data.insertDirection.value
+          : this.insertDirection,
+      vectorNotes:
+          data.vectorNotes.present ? data.vectorNotes.value : this.vectorNotes,
+      fivePrimeRestrictionSite: data.fivePrimeRestrictionSite.present
+          ? data.fivePrimeRestrictionSite.value
+          : this.fivePrimeRestrictionSite,
+      threePrimeRestrictionSite: data.threePrimeRestrictionSite.present
+          ? data.threePrimeRestrictionSite.value
+          : this.threePrimeRestrictionSite,
+      geneName: data.geneName.present ? data.geneName.value : this.geneName,
+      insertLengthBp: data.insertLengthBp.present
+          ? data.insertLengthBp.value
+          : this.insertLengthBp,
+      geneSequence: data.geneSequence.present
+          ? data.geneSequence.value
+          : this.geneSequence,
+      geneSource:
+          data.geneSource.present ? data.geneSource.value : this.geneSource,
+      hostBacteria: data.hostBacteria.present
+          ? data.hostBacteria.value
+          : this.hostBacteria,
+      selectionAntibiotic: data.selectionAntibiotic.present
+          ? data.selectionAntibiotic.value
+          : this.selectionAntibiotic,
+      positiveCloneCount: data.positiveCloneCount.present
+          ? data.positiveCloneCount.value
+          : this.positiveCloneCount,
+      transformationNotes: data.transformationNotes.present
+          ? data.transformationNotes.value
+          : this.transformationNotes,
+      screeningMethod: data.screeningMethod.present
+          ? data.screeningMethod.value
+          : this.screeningMethod,
+      selectedColony: data.selectedColony.present
+          ? data.selectedColony.value
+          : this.selectedColony,
+      restrictionDigestConfirmed: data.restrictionDigestConfirmed.present
+          ? data.restrictionDigestConfirmed.value
+          : this.restrictionDigestConfirmed,
+      colonyPcrConfirmed: data.colonyPcrConfirmed.present
+          ? data.colonyPcrConfirmed.value
+          : this.colonyPcrConfirmed,
+      miniprepDone: data.miniprepDone.present
+          ? data.miniprepDone.value
+          : this.miniprepDone,
+      screeningNotes: data.screeningNotes.present
+          ? data.screeningNotes.value
+          : this.screeningNotes,
+      insertSequenceVerified: data.insertSequenceVerified.present
+          ? data.insertSequenceVerified.value
+          : this.insertSequenceVerified,
+      sequencingPrimer: data.sequencingPrimer.present
+          ? data.sequencingPrimer.value
+          : this.sequencingPrimer,
+      additionalNotes: data.additionalNotes.present
+          ? data.additionalNotes.value
+          : this.additionalNotes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -823,14 +1336,32 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return (StringBuffer('CloningDetail(')
           ..write('id: $id, ')
           ..write('experimentRecordId: $experimentRecordId, ')
-          ..write('vector: $vector, ')
-          ..write('insertName: $insertName, ')
-          ..write('tag: $tag, ')
-          ..write('selectionMarker: $selectionMarker, ')
-          ..write('expectedConstructSize: $expectedConstructSize, ')
-          ..write('cloneId: $cloneId, ')
-          ..write('screeningResult: $screeningResult, ')
-          ..write('sequencingResult: $sequencingResult, ')
+          ..write('experimentTitle: $experimentTitle, ')
+          ..write('researcher: $researcher, ')
+          ..write('experimentDate: $experimentDate, ')
+          ..write('plasmidName: $plasmidName, ')
+          ..write('plasmidFrame: $plasmidFrame, ')
+          ..write('insertDirection: $insertDirection, ')
+          ..write('vectorNotes: $vectorNotes, ')
+          ..write('fivePrimeRestrictionSite: $fivePrimeRestrictionSite, ')
+          ..write('threePrimeRestrictionSite: $threePrimeRestrictionSite, ')
+          ..write('geneName: $geneName, ')
+          ..write('insertLengthBp: $insertLengthBp, ')
+          ..write('geneSequence: $geneSequence, ')
+          ..write('geneSource: $geneSource, ')
+          ..write('hostBacteria: $hostBacteria, ')
+          ..write('selectionAntibiotic: $selectionAntibiotic, ')
+          ..write('positiveCloneCount: $positiveCloneCount, ')
+          ..write('transformationNotes: $transformationNotes, ')
+          ..write('screeningMethod: $screeningMethod, ')
+          ..write('selectedColony: $selectedColony, ')
+          ..write('restrictionDigestConfirmed: $restrictionDigestConfirmed, ')
+          ..write('colonyPcrConfirmed: $colonyPcrConfirmed, ')
+          ..write('miniprepDone: $miniprepDone, ')
+          ..write('screeningNotes: $screeningNotes, ')
+          ..write('insertSequenceVerified: $insertSequenceVerified, ')
+          ..write('sequencingPrimer: $sequencingPrimer, ')
+          ..write('additionalNotes: $additionalNotes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -838,33 +1369,70 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      experimentRecordId,
-      vector,
-      insertName,
-      tag,
-      selectionMarker,
-      expectedConstructSize,
-      cloneId,
-      screeningResult,
-      sequencingResult,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        experimentRecordId,
+        experimentTitle,
+        researcher,
+        experimentDate,
+        plasmidName,
+        plasmidFrame,
+        insertDirection,
+        vectorNotes,
+        fivePrimeRestrictionSite,
+        threePrimeRestrictionSite,
+        geneName,
+        insertLengthBp,
+        geneSequence,
+        geneSource,
+        hostBacteria,
+        selectionAntibiotic,
+        positiveCloneCount,
+        transformationNotes,
+        screeningMethod,
+        selectedColony,
+        restrictionDigestConfirmed,
+        colonyPcrConfirmed,
+        miniprepDone,
+        screeningNotes,
+        insertSequenceVerified,
+        sequencingPrimer,
+        additionalNotes,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CloningDetail &&
           other.id == this.id &&
           other.experimentRecordId == this.experimentRecordId &&
-          other.vector == this.vector &&
-          other.insertName == this.insertName &&
-          other.tag == this.tag &&
-          other.selectionMarker == this.selectionMarker &&
-          other.expectedConstructSize == this.expectedConstructSize &&
-          other.cloneId == this.cloneId &&
-          other.screeningResult == this.screeningResult &&
-          other.sequencingResult == this.sequencingResult &&
+          other.experimentTitle == this.experimentTitle &&
+          other.researcher == this.researcher &&
+          other.experimentDate == this.experimentDate &&
+          other.plasmidName == this.plasmidName &&
+          other.plasmidFrame == this.plasmidFrame &&
+          other.insertDirection == this.insertDirection &&
+          other.vectorNotes == this.vectorNotes &&
+          other.fivePrimeRestrictionSite == this.fivePrimeRestrictionSite &&
+          other.threePrimeRestrictionSite == this.threePrimeRestrictionSite &&
+          other.geneName == this.geneName &&
+          other.insertLengthBp == this.insertLengthBp &&
+          other.geneSequence == this.geneSequence &&
+          other.geneSource == this.geneSource &&
+          other.hostBacteria == this.hostBacteria &&
+          other.selectionAntibiotic == this.selectionAntibiotic &&
+          other.positiveCloneCount == this.positiveCloneCount &&
+          other.transformationNotes == this.transformationNotes &&
+          other.screeningMethod == this.screeningMethod &&
+          other.selectedColony == this.selectedColony &&
+          other.restrictionDigestConfirmed == this.restrictionDigestConfirmed &&
+          other.colonyPcrConfirmed == this.colonyPcrConfirmed &&
+          other.miniprepDone == this.miniprepDone &&
+          other.screeningNotes == this.screeningNotes &&
+          other.insertSequenceVerified == this.insertSequenceVerified &&
+          other.sequencingPrimer == this.sequencingPrimer &&
+          other.additionalNotes == this.additionalNotes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -872,57 +1440,127 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
 class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
   final Value<int> id;
   final Value<int> experimentRecordId;
-  final Value<String?> vector;
-  final Value<String?> insertName;
-  final Value<String?> tag;
-  final Value<String?> selectionMarker;
-  final Value<String?> expectedConstructSize;
-  final Value<String?> cloneId;
-  final Value<String?> screeningResult;
-  final Value<String?> sequencingResult;
+  final Value<String?> experimentTitle;
+  final Value<String?> researcher;
+  final Value<DateTime?> experimentDate;
+  final Value<String?> plasmidName;
+  final Value<String?> plasmidFrame;
+  final Value<String?> insertDirection;
+  final Value<String?> vectorNotes;
+  final Value<String?> fivePrimeRestrictionSite;
+  final Value<String?> threePrimeRestrictionSite;
+  final Value<String?> geneName;
+  final Value<int?> insertLengthBp;
+  final Value<String?> geneSequence;
+  final Value<String?> geneSource;
+  final Value<String?> hostBacteria;
+  final Value<String?> selectionAntibiotic;
+  final Value<int?> positiveCloneCount;
+  final Value<String?> transformationNotes;
+  final Value<String?> screeningMethod;
+  final Value<String?> selectedColony;
+  final Value<bool> restrictionDigestConfirmed;
+  final Value<bool> colonyPcrConfirmed;
+  final Value<bool> miniprepDone;
+  final Value<String?> screeningNotes;
+  final Value<bool> insertSequenceVerified;
+  final Value<String?> sequencingPrimer;
+  final Value<String?> additionalNotes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const CloningDetailsCompanion({
     this.id = const Value.absent(),
     this.experimentRecordId = const Value.absent(),
-    this.vector = const Value.absent(),
-    this.insertName = const Value.absent(),
-    this.tag = const Value.absent(),
-    this.selectionMarker = const Value.absent(),
-    this.expectedConstructSize = const Value.absent(),
-    this.cloneId = const Value.absent(),
-    this.screeningResult = const Value.absent(),
-    this.sequencingResult = const Value.absent(),
+    this.experimentTitle = const Value.absent(),
+    this.researcher = const Value.absent(),
+    this.experimentDate = const Value.absent(),
+    this.plasmidName = const Value.absent(),
+    this.plasmidFrame = const Value.absent(),
+    this.insertDirection = const Value.absent(),
+    this.vectorNotes = const Value.absent(),
+    this.fivePrimeRestrictionSite = const Value.absent(),
+    this.threePrimeRestrictionSite = const Value.absent(),
+    this.geneName = const Value.absent(),
+    this.insertLengthBp = const Value.absent(),
+    this.geneSequence = const Value.absent(),
+    this.geneSource = const Value.absent(),
+    this.hostBacteria = const Value.absent(),
+    this.selectionAntibiotic = const Value.absent(),
+    this.positiveCloneCount = const Value.absent(),
+    this.transformationNotes = const Value.absent(),
+    this.screeningMethod = const Value.absent(),
+    this.selectedColony = const Value.absent(),
+    this.restrictionDigestConfirmed = const Value.absent(),
+    this.colonyPcrConfirmed = const Value.absent(),
+    this.miniprepDone = const Value.absent(),
+    this.screeningNotes = const Value.absent(),
+    this.insertSequenceVerified = const Value.absent(),
+    this.sequencingPrimer = const Value.absent(),
+    this.additionalNotes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   CloningDetailsCompanion.insert({
     this.id = const Value.absent(),
     required int experimentRecordId,
-    this.vector = const Value.absent(),
-    this.insertName = const Value.absent(),
-    this.tag = const Value.absent(),
-    this.selectionMarker = const Value.absent(),
-    this.expectedConstructSize = const Value.absent(),
-    this.cloneId = const Value.absent(),
-    this.screeningResult = const Value.absent(),
-    this.sequencingResult = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  })  : experimentRecordId = Value(experimentRecordId),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
+    this.experimentTitle = const Value.absent(),
+    this.researcher = const Value.absent(),
+    this.experimentDate = const Value.absent(),
+    this.plasmidName = const Value.absent(),
+    this.plasmidFrame = const Value.absent(),
+    this.insertDirection = const Value.absent(),
+    this.vectorNotes = const Value.absent(),
+    this.fivePrimeRestrictionSite = const Value.absent(),
+    this.threePrimeRestrictionSite = const Value.absent(),
+    this.geneName = const Value.absent(),
+    this.insertLengthBp = const Value.absent(),
+    this.geneSequence = const Value.absent(),
+    this.geneSource = const Value.absent(),
+    this.hostBacteria = const Value.absent(),
+    this.selectionAntibiotic = const Value.absent(),
+    this.positiveCloneCount = const Value.absent(),
+    this.transformationNotes = const Value.absent(),
+    this.screeningMethod = const Value.absent(),
+    this.selectedColony = const Value.absent(),
+    this.restrictionDigestConfirmed = const Value.absent(),
+    this.colonyPcrConfirmed = const Value.absent(),
+    this.miniprepDone = const Value.absent(),
+    this.screeningNotes = const Value.absent(),
+    this.insertSequenceVerified = const Value.absent(),
+    this.sequencingPrimer = const Value.absent(),
+    this.additionalNotes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : experimentRecordId = Value(experimentRecordId);
   static Insertable<CloningDetail> custom({
     Expression<int>? id,
     Expression<int>? experimentRecordId,
-    Expression<String>? vector,
-    Expression<String>? insertName,
-    Expression<String>? tag,
-    Expression<String>? selectionMarker,
-    Expression<String>? expectedConstructSize,
-    Expression<String>? cloneId,
-    Expression<String>? screeningResult,
-    Expression<String>? sequencingResult,
+    Expression<String>? experimentTitle,
+    Expression<String>? researcher,
+    Expression<DateTime>? experimentDate,
+    Expression<String>? plasmidName,
+    Expression<String>? plasmidFrame,
+    Expression<String>? insertDirection,
+    Expression<String>? vectorNotes,
+    Expression<String>? fivePrimeRestrictionSite,
+    Expression<String>? threePrimeRestrictionSite,
+    Expression<String>? geneName,
+    Expression<int>? insertLengthBp,
+    Expression<String>? geneSequence,
+    Expression<String>? geneSource,
+    Expression<String>? hostBacteria,
+    Expression<String>? selectionAntibiotic,
+    Expression<int>? positiveCloneCount,
+    Expression<String>? transformationNotes,
+    Expression<String>? screeningMethod,
+    Expression<String>? selectedColony,
+    Expression<bool>? restrictionDigestConfirmed,
+    Expression<bool>? colonyPcrConfirmed,
+    Expression<bool>? miniprepDone,
+    Expression<String>? screeningNotes,
+    Expression<bool>? insertSequenceVerified,
+    Expression<String>? sequencingPrimer,
+    Expression<String>? additionalNotes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -930,15 +1568,40 @@ class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
       if (id != null) 'id': id,
       if (experimentRecordId != null)
         'experiment_record_id': experimentRecordId,
-      if (vector != null) 'vector': vector,
-      if (insertName != null) 'insert_name': insertName,
-      if (tag != null) 'tag': tag,
-      if (selectionMarker != null) 'selection_marker': selectionMarker,
-      if (expectedConstructSize != null)
-        'expected_construct_size': expectedConstructSize,
-      if (cloneId != null) 'clone_id': cloneId,
-      if (screeningResult != null) 'screening_result': screeningResult,
-      if (sequencingResult != null) 'sequencing_result': sequencingResult,
+      if (experimentTitle != null) 'experiment_title': experimentTitle,
+      if (researcher != null) 'researcher': researcher,
+      if (experimentDate != null) 'experiment_date': experimentDate,
+      if (plasmidName != null) 'plasmid_name': plasmidName,
+      if (plasmidFrame != null) 'plasmid_frame': plasmidFrame,
+      if (insertDirection != null) 'insert_direction': insertDirection,
+      if (vectorNotes != null) 'vector_notes': vectorNotes,
+      if (fivePrimeRestrictionSite != null)
+        'five_prime_restriction_site': fivePrimeRestrictionSite,
+      if (threePrimeRestrictionSite != null)
+        'three_prime_restriction_site': threePrimeRestrictionSite,
+      if (geneName != null) 'gene_name': geneName,
+      if (insertLengthBp != null) 'insert_length_bp': insertLengthBp,
+      if (geneSequence != null) 'gene_sequence': geneSequence,
+      if (geneSource != null) 'gene_source': geneSource,
+      if (hostBacteria != null) 'host_bacteria': hostBacteria,
+      if (selectionAntibiotic != null)
+        'selection_antibiotic': selectionAntibiotic,
+      if (positiveCloneCount != null)
+        'positive_clone_count': positiveCloneCount,
+      if (transformationNotes != null)
+        'transformation_notes': transformationNotes,
+      if (screeningMethod != null) 'screening_method': screeningMethod,
+      if (selectedColony != null) 'selected_colony': selectedColony,
+      if (restrictionDigestConfirmed != null)
+        'restriction_digest_confirmed': restrictionDigestConfirmed,
+      if (colonyPcrConfirmed != null)
+        'colony_pcr_confirmed': colonyPcrConfirmed,
+      if (miniprepDone != null) 'miniprep_done': miniprepDone,
+      if (screeningNotes != null) 'screening_notes': screeningNotes,
+      if (insertSequenceVerified != null)
+        'insert_sequence_verified': insertSequenceVerified,
+      if (sequencingPrimer != null) 'sequencing_primer': sequencingPrimer,
+      if (additionalNotes != null) 'additional_notes': additionalNotes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -947,28 +1610,67 @@ class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
   CloningDetailsCompanion copyWith(
       {Value<int>? id,
       Value<int>? experimentRecordId,
-      Value<String?>? vector,
-      Value<String?>? insertName,
-      Value<String?>? tag,
-      Value<String?>? selectionMarker,
-      Value<String?>? expectedConstructSize,
-      Value<String?>? cloneId,
-      Value<String?>? screeningResult,
-      Value<String?>? sequencingResult,
+      Value<String?>? experimentTitle,
+      Value<String?>? researcher,
+      Value<DateTime?>? experimentDate,
+      Value<String?>? plasmidName,
+      Value<String?>? plasmidFrame,
+      Value<String?>? insertDirection,
+      Value<String?>? vectorNotes,
+      Value<String?>? fivePrimeRestrictionSite,
+      Value<String?>? threePrimeRestrictionSite,
+      Value<String?>? geneName,
+      Value<int?>? insertLengthBp,
+      Value<String?>? geneSequence,
+      Value<String?>? geneSource,
+      Value<String?>? hostBacteria,
+      Value<String?>? selectionAntibiotic,
+      Value<int?>? positiveCloneCount,
+      Value<String?>? transformationNotes,
+      Value<String?>? screeningMethod,
+      Value<String?>? selectedColony,
+      Value<bool>? restrictionDigestConfirmed,
+      Value<bool>? colonyPcrConfirmed,
+      Value<bool>? miniprepDone,
+      Value<String?>? screeningNotes,
+      Value<bool>? insertSequenceVerified,
+      Value<String?>? sequencingPrimer,
+      Value<String?>? additionalNotes,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
     return CloningDetailsCompanion(
       id: id ?? this.id,
       experimentRecordId: experimentRecordId ?? this.experimentRecordId,
-      vector: vector ?? this.vector,
-      insertName: insertName ?? this.insertName,
-      tag: tag ?? this.tag,
-      selectionMarker: selectionMarker ?? this.selectionMarker,
-      expectedConstructSize:
-          expectedConstructSize ?? this.expectedConstructSize,
-      cloneId: cloneId ?? this.cloneId,
-      screeningResult: screeningResult ?? this.screeningResult,
-      sequencingResult: sequencingResult ?? this.sequencingResult,
+      experimentTitle: experimentTitle ?? this.experimentTitle,
+      researcher: researcher ?? this.researcher,
+      experimentDate: experimentDate ?? this.experimentDate,
+      plasmidName: plasmidName ?? this.plasmidName,
+      plasmidFrame: plasmidFrame ?? this.plasmidFrame,
+      insertDirection: insertDirection ?? this.insertDirection,
+      vectorNotes: vectorNotes ?? this.vectorNotes,
+      fivePrimeRestrictionSite:
+          fivePrimeRestrictionSite ?? this.fivePrimeRestrictionSite,
+      threePrimeRestrictionSite:
+          threePrimeRestrictionSite ?? this.threePrimeRestrictionSite,
+      geneName: geneName ?? this.geneName,
+      insertLengthBp: insertLengthBp ?? this.insertLengthBp,
+      geneSequence: geneSequence ?? this.geneSequence,
+      geneSource: geneSource ?? this.geneSource,
+      hostBacteria: hostBacteria ?? this.hostBacteria,
+      selectionAntibiotic: selectionAntibiotic ?? this.selectionAntibiotic,
+      positiveCloneCount: positiveCloneCount ?? this.positiveCloneCount,
+      transformationNotes: transformationNotes ?? this.transformationNotes,
+      screeningMethod: screeningMethod ?? this.screeningMethod,
+      selectedColony: selectedColony ?? this.selectedColony,
+      restrictionDigestConfirmed:
+          restrictionDigestConfirmed ?? this.restrictionDigestConfirmed,
+      colonyPcrConfirmed: colonyPcrConfirmed ?? this.colonyPcrConfirmed,
+      miniprepDone: miniprepDone ?? this.miniprepDone,
+      screeningNotes: screeningNotes ?? this.screeningNotes,
+      insertSequenceVerified:
+          insertSequenceVerified ?? this.insertSequenceVerified,
+      sequencingPrimer: sequencingPrimer ?? this.sequencingPrimer,
+      additionalNotes: additionalNotes ?? this.additionalNotes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -983,30 +1685,87 @@ class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
     if (experimentRecordId.present) {
       map['experiment_record_id'] = Variable<int>(experimentRecordId.value);
     }
-    if (vector.present) {
-      map['vector'] = Variable<String>(vector.value);
+    if (experimentTitle.present) {
+      map['experiment_title'] = Variable<String>(experimentTitle.value);
     }
-    if (insertName.present) {
-      map['insert_name'] = Variable<String>(insertName.value);
+    if (researcher.present) {
+      map['researcher'] = Variable<String>(researcher.value);
     }
-    if (tag.present) {
-      map['tag'] = Variable<String>(tag.value);
+    if (experimentDate.present) {
+      map['experiment_date'] = Variable<DateTime>(experimentDate.value);
     }
-    if (selectionMarker.present) {
-      map['selection_marker'] = Variable<String>(selectionMarker.value);
+    if (plasmidName.present) {
+      map['plasmid_name'] = Variable<String>(plasmidName.value);
     }
-    if (expectedConstructSize.present) {
-      map['expected_construct_size'] =
-          Variable<String>(expectedConstructSize.value);
+    if (plasmidFrame.present) {
+      map['plasmid_frame'] = Variable<String>(plasmidFrame.value);
     }
-    if (cloneId.present) {
-      map['clone_id'] = Variable<String>(cloneId.value);
+    if (insertDirection.present) {
+      map['insert_direction'] = Variable<String>(insertDirection.value);
     }
-    if (screeningResult.present) {
-      map['screening_result'] = Variable<String>(screeningResult.value);
+    if (vectorNotes.present) {
+      map['vector_notes'] = Variable<String>(vectorNotes.value);
     }
-    if (sequencingResult.present) {
-      map['sequencing_result'] = Variable<String>(sequencingResult.value);
+    if (fivePrimeRestrictionSite.present) {
+      map['five_prime_restriction_site'] =
+          Variable<String>(fivePrimeRestrictionSite.value);
+    }
+    if (threePrimeRestrictionSite.present) {
+      map['three_prime_restriction_site'] =
+          Variable<String>(threePrimeRestrictionSite.value);
+    }
+    if (geneName.present) {
+      map['gene_name'] = Variable<String>(geneName.value);
+    }
+    if (insertLengthBp.present) {
+      map['insert_length_bp'] = Variable<int>(insertLengthBp.value);
+    }
+    if (geneSequence.present) {
+      map['gene_sequence'] = Variable<String>(geneSequence.value);
+    }
+    if (geneSource.present) {
+      map['gene_source'] = Variable<String>(geneSource.value);
+    }
+    if (hostBacteria.present) {
+      map['host_bacteria'] = Variable<String>(hostBacteria.value);
+    }
+    if (selectionAntibiotic.present) {
+      map['selection_antibiotic'] = Variable<String>(selectionAntibiotic.value);
+    }
+    if (positiveCloneCount.present) {
+      map['positive_clone_count'] = Variable<int>(positiveCloneCount.value);
+    }
+    if (transformationNotes.present) {
+      map['transformation_notes'] = Variable<String>(transformationNotes.value);
+    }
+    if (screeningMethod.present) {
+      map['screening_method'] = Variable<String>(screeningMethod.value);
+    }
+    if (selectedColony.present) {
+      map['selected_colony'] = Variable<String>(selectedColony.value);
+    }
+    if (restrictionDigestConfirmed.present) {
+      map['restriction_digest_confirmed'] =
+          Variable<bool>(restrictionDigestConfirmed.value);
+    }
+    if (colonyPcrConfirmed.present) {
+      map['colony_pcr_confirmed'] = Variable<bool>(colonyPcrConfirmed.value);
+    }
+    if (miniprepDone.present) {
+      map['miniprep_done'] = Variable<bool>(miniprepDone.value);
+    }
+    if (screeningNotes.present) {
+      map['screening_notes'] = Variable<String>(screeningNotes.value);
+    }
+    if (insertSequenceVerified.present) {
+      map['insert_sequence_verified'] =
+          Variable<bool>(insertSequenceVerified.value);
+    }
+    if (sequencingPrimer.present) {
+      map['sequencing_primer'] = Variable<String>(sequencingPrimer.value);
+    }
+    if (additionalNotes.present) {
+      map['additional_notes'] = Variable<String>(additionalNotes.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -1022,14 +1781,32 @@ class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
     return (StringBuffer('CloningDetailsCompanion(')
           ..write('id: $id, ')
           ..write('experimentRecordId: $experimentRecordId, ')
-          ..write('vector: $vector, ')
-          ..write('insertName: $insertName, ')
-          ..write('tag: $tag, ')
-          ..write('selectionMarker: $selectionMarker, ')
-          ..write('expectedConstructSize: $expectedConstructSize, ')
-          ..write('cloneId: $cloneId, ')
-          ..write('screeningResult: $screeningResult, ')
-          ..write('sequencingResult: $sequencingResult, ')
+          ..write('experimentTitle: $experimentTitle, ')
+          ..write('researcher: $researcher, ')
+          ..write('experimentDate: $experimentDate, ')
+          ..write('plasmidName: $plasmidName, ')
+          ..write('plasmidFrame: $plasmidFrame, ')
+          ..write('insertDirection: $insertDirection, ')
+          ..write('vectorNotes: $vectorNotes, ')
+          ..write('fivePrimeRestrictionSite: $fivePrimeRestrictionSite, ')
+          ..write('threePrimeRestrictionSite: $threePrimeRestrictionSite, ')
+          ..write('geneName: $geneName, ')
+          ..write('insertLengthBp: $insertLengthBp, ')
+          ..write('geneSequence: $geneSequence, ')
+          ..write('geneSource: $geneSource, ')
+          ..write('hostBacteria: $hostBacteria, ')
+          ..write('selectionAntibiotic: $selectionAntibiotic, ')
+          ..write('positiveCloneCount: $positiveCloneCount, ')
+          ..write('transformationNotes: $transformationNotes, ')
+          ..write('screeningMethod: $screeningMethod, ')
+          ..write('selectedColony: $selectedColony, ')
+          ..write('restrictionDigestConfirmed: $restrictionDigestConfirmed, ')
+          ..write('colonyPcrConfirmed: $colonyPcrConfirmed, ')
+          ..write('miniprepDone: $miniprepDone, ')
+          ..write('screeningNotes: $screeningNotes, ')
+          ..write('insertSequenceVerified: $insertSequenceVerified, ')
+          ..write('sequencingPrimer: $sequencingPrimer, ')
+          ..write('additionalNotes: $additionalNotes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1057,7 +1834,10 @@ class $TransfectionDetailsTable extends TransfectionDetails
   @override
   late final GeneratedColumn<int> experimentRecordId = GeneratedColumn<int>(
       'experiment_record_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES experiment_records (id)'));
   static const VerificationMeta _cellLineMeta =
       const VerificationMeta('cellLine');
   @override
@@ -1794,7 +2574,10 @@ class $SirnaDetailsTable extends SirnaDetails
   @override
   late final GeneratedColumn<int> experimentRecordId = GeneratedColumn<int>(
       'experiment_record_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES experiment_records (id)'));
   static const VerificationMeta _targetGeneMeta =
       const VerificationMeta('targetGene');
   @override
@@ -2238,7 +3021,10 @@ class $PurificationDetailsTable extends PurificationDetails
   @override
   late final GeneratedColumn<int> experimentRecordId = GeneratedColumn<int>(
       'experiment_record_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES experiment_records (id)'));
   static const VerificationMeta _sampleNameMeta =
       const VerificationMeta('sampleName');
   @override
@@ -4017,25 +4803,97 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$ExperimentRecordsTableCreateCompanionBuilder
     = ExperimentRecordsCompanion Function({
   Value<int> id,
-  required String module,
   required String title,
-  Value<String?> objective,
-  Value<String?> sampleId,
-  Value<String?> notes,
-  required DateTime createdAt,
-  required DateTime updatedAt,
-});
-typedef $$ExperimentRecordsTableUpdateCompanionBuilder
-    = ExperimentRecordsCompanion Function({
-  Value<int> id,
-  Value<String> module,
-  Value<String> title,
-  Value<String?> objective,
-  Value<String?> sampleId,
+  required String module,
   Value<String?> notes,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
+typedef $$ExperimentRecordsTableUpdateCompanionBuilder
+    = ExperimentRecordsCompanion Function({
+  Value<int> id,
+  Value<String> title,
+  Value<String> module,
+  Value<String?> notes,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+final class $$ExperimentRecordsTableReferences extends BaseReferences<
+    _$AppDatabase, $ExperimentRecordsTable, ExperimentRecord> {
+  $$ExperimentRecordsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$CloningDetailsTable, List<CloningDetail>>
+      _cloningDetailsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.cloningDetails,
+              aliasName: $_aliasNameGenerator(db.experimentRecords.id,
+                  db.cloningDetails.experimentRecordId));
+
+  $$CloningDetailsTableProcessedTableManager get cloningDetailsRefs {
+    final manager = $$CloningDetailsTableTableManager($_db, $_db.cloningDetails)
+        .filter(
+            (f) => f.experimentRecordId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_cloningDetailsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$TransfectionDetailsTable,
+      List<TransfectionDetail>> _transfectionDetailsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.transfectionDetails,
+          aliasName: $_aliasNameGenerator(db.experimentRecords.id,
+              db.transfectionDetails.experimentRecordId));
+
+  $$TransfectionDetailsTableProcessedTableManager get transfectionDetailsRefs {
+    final manager = $$TransfectionDetailsTableTableManager(
+            $_db, $_db.transfectionDetails)
+        .filter(
+            (f) => f.experimentRecordId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_transfectionDetailsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$SirnaDetailsTable, List<SirnaDetail>>
+      _sirnaDetailsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.sirnaDetails,
+              aliasName: $_aliasNameGenerator(
+                  db.experimentRecords.id, db.sirnaDetails.experimentRecordId));
+
+  $$SirnaDetailsTableProcessedTableManager get sirnaDetailsRefs {
+    final manager = $$SirnaDetailsTableTableManager($_db, $_db.sirnaDetails)
+        .filter(
+            (f) => f.experimentRecordId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_sirnaDetailsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$PurificationDetailsTable,
+      List<PurificationDetail>> _purificationDetailsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.purificationDetails,
+          aliasName: $_aliasNameGenerator(db.experimentRecords.id,
+              db.purificationDetails.experimentRecordId));
+
+  $$PurificationDetailsTableProcessedTableManager get purificationDetailsRefs {
+    final manager = $$PurificationDetailsTableTableManager(
+            $_db, $_db.purificationDetails)
+        .filter(
+            (f) => f.experimentRecordId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_purificationDetailsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$ExperimentRecordsTableFilterComposer
     extends Composer<_$AppDatabase, $ExperimentRecordsTable> {
@@ -4049,17 +4907,11 @@ class $$ExperimentRecordsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get module => $composableBuilder(
-      column: $table.module, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get objective => $composableBuilder(
-      column: $table.objective, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get sampleId => $composableBuilder(
-      column: $table.sampleId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get module => $composableBuilder(
+      column: $table.module, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
@@ -4069,6 +4921,90 @@ class $$ExperimentRecordsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> cloningDetailsRefs(
+      Expression<bool> Function($$CloningDetailsTableFilterComposer f) f) {
+    final $$CloningDetailsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.cloningDetails,
+        getReferencedColumn: (t) => t.experimentRecordId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CloningDetailsTableFilterComposer(
+              $db: $db,
+              $table: $db.cloningDetails,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> transfectionDetailsRefs(
+      Expression<bool> Function($$TransfectionDetailsTableFilterComposer f) f) {
+    final $$TransfectionDetailsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.transfectionDetails,
+        getReferencedColumn: (t) => t.experimentRecordId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TransfectionDetailsTableFilterComposer(
+              $db: $db,
+              $table: $db.transfectionDetails,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> sirnaDetailsRefs(
+      Expression<bool> Function($$SirnaDetailsTableFilterComposer f) f) {
+    final $$SirnaDetailsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.sirnaDetails,
+        getReferencedColumn: (t) => t.experimentRecordId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SirnaDetailsTableFilterComposer(
+              $db: $db,
+              $table: $db.sirnaDetails,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> purificationDetailsRefs(
+      Expression<bool> Function($$PurificationDetailsTableFilterComposer f) f) {
+    final $$PurificationDetailsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.purificationDetails,
+        getReferencedColumn: (t) => t.experimentRecordId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$PurificationDetailsTableFilterComposer(
+              $db: $db,
+              $table: $db.purificationDetails,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ExperimentRecordsTableOrderingComposer
@@ -4083,17 +5019,11 @@ class $$ExperimentRecordsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get module => $composableBuilder(
-      column: $table.module, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get objective => $composableBuilder(
-      column: $table.objective, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get sampleId => $composableBuilder(
-      column: $table.sampleId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get module => $composableBuilder(
+      column: $table.module, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
@@ -4117,17 +5047,11 @@ class $$ExperimentRecordsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get module =>
-      $composableBuilder(column: $table.module, builder: (column) => column);
-
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<String> get objective =>
-      $composableBuilder(column: $table.objective, builder: (column) => column);
-
-  GeneratedColumn<String> get sampleId =>
-      $composableBuilder(column: $table.sampleId, builder: (column) => column);
+  GeneratedColumn<String> get module =>
+      $composableBuilder(column: $table.module, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -4137,6 +5061,94 @@ class $$ExperimentRecordsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> cloningDetailsRefs<T extends Object>(
+      Expression<T> Function($$CloningDetailsTableAnnotationComposer a) f) {
+    final $$CloningDetailsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.cloningDetails,
+        getReferencedColumn: (t) => t.experimentRecordId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CloningDetailsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.cloningDetails,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> transfectionDetailsRefs<T extends Object>(
+      Expression<T> Function($$TransfectionDetailsTableAnnotationComposer a)
+          f) {
+    final $$TransfectionDetailsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.transfectionDetails,
+            getReferencedColumn: (t) => t.experimentRecordId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$TransfectionDetailsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.transfectionDetails,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+
+  Expression<T> sirnaDetailsRefs<T extends Object>(
+      Expression<T> Function($$SirnaDetailsTableAnnotationComposer a) f) {
+    final $$SirnaDetailsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.sirnaDetails,
+        getReferencedColumn: (t) => t.experimentRecordId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SirnaDetailsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.sirnaDetails,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> purificationDetailsRefs<T extends Object>(
+      Expression<T> Function($$PurificationDetailsTableAnnotationComposer a)
+          f) {
+    final $$PurificationDetailsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.purificationDetails,
+            getReferencedColumn: (t) => t.experimentRecordId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$PurificationDetailsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.purificationDetails,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$ExperimentRecordsTableTableManager extends RootTableManager<
@@ -4148,12 +5160,13 @@ class $$ExperimentRecordsTableTableManager extends RootTableManager<
     $$ExperimentRecordsTableAnnotationComposer,
     $$ExperimentRecordsTableCreateCompanionBuilder,
     $$ExperimentRecordsTableUpdateCompanionBuilder,
-    (
-      ExperimentRecord,
-      BaseReferences<_$AppDatabase, $ExperimentRecordsTable, ExperimentRecord>
-    ),
+    (ExperimentRecord, $$ExperimentRecordsTableReferences),
     ExperimentRecord,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function(
+        {bool cloningDetailsRefs,
+        bool transfectionDetailsRefs,
+        bool sirnaDetailsRefs,
+        bool purificationDetailsRefs})> {
   $$ExperimentRecordsTableTableManager(
       _$AppDatabase db, $ExperimentRecordsTable table)
       : super(TableManagerState(
@@ -4168,48 +5181,114 @@ class $$ExperimentRecordsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String> module = const Value.absent(),
             Value<String> title = const Value.absent(),
-            Value<String?> objective = const Value.absent(),
-            Value<String?> sampleId = const Value.absent(),
+            Value<String> module = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               ExperimentRecordsCompanion(
             id: id,
-            module: module,
             title: title,
-            objective: objective,
-            sampleId: sampleId,
+            module: module,
             notes: notes,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required String module,
             required String title,
-            Value<String?> objective = const Value.absent(),
-            Value<String?> sampleId = const Value.absent(),
+            required String module,
             Value<String?> notes = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               ExperimentRecordsCompanion.insert(
             id: id,
-            module: module,
             title: title,
-            objective: objective,
-            sampleId: sampleId,
+            module: module,
             notes: notes,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$ExperimentRecordsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: (
+              {cloningDetailsRefs = false,
+              transfectionDetailsRefs = false,
+              sirnaDetailsRefs = false,
+              purificationDetailsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (cloningDetailsRefs) db.cloningDetails,
+                if (transfectionDetailsRefs) db.transfectionDetails,
+                if (sirnaDetailsRefs) db.sirnaDetails,
+                if (purificationDetailsRefs) db.purificationDetails
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (cloningDetailsRefs)
+                    await $_getPrefetchedData<ExperimentRecord,
+                            $ExperimentRecordsTable, CloningDetail>(
+                        currentTable: table,
+                        referencedTable: $$ExperimentRecordsTableReferences
+                            ._cloningDetailsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ExperimentRecordsTableReferences(db, table, p0)
+                                .cloningDetailsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.experimentRecordId == item.id),
+                        typedResults: items),
+                  if (transfectionDetailsRefs)
+                    await $_getPrefetchedData<ExperimentRecord,
+                            $ExperimentRecordsTable, TransfectionDetail>(
+                        currentTable: table,
+                        referencedTable: $$ExperimentRecordsTableReferences
+                            ._transfectionDetailsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ExperimentRecordsTableReferences(db, table, p0)
+                                .transfectionDetailsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.experimentRecordId == item.id),
+                        typedResults: items),
+                  if (sirnaDetailsRefs)
+                    await $_getPrefetchedData<ExperimentRecord,
+                            $ExperimentRecordsTable, SirnaDetail>(
+                        currentTable: table,
+                        referencedTable: $$ExperimentRecordsTableReferences
+                            ._sirnaDetailsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ExperimentRecordsTableReferences(db, table, p0)
+                                .sirnaDetailsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.experimentRecordId == item.id),
+                        typedResults: items),
+                  if (purificationDetailsRefs)
+                    await $_getPrefetchedData<ExperimentRecord,
+                            $ExperimentRecordsTable, PurificationDetail>(
+                        currentTable: table,
+                        referencedTable: $$ExperimentRecordsTableReferences
+                            ._purificationDetailsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ExperimentRecordsTableReferences(db, table, p0)
+                                .purificationDetailsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.experimentRecordId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -4222,42 +5301,101 @@ typedef $$ExperimentRecordsTableProcessedTableManager = ProcessedTableManager<
     $$ExperimentRecordsTableAnnotationComposer,
     $$ExperimentRecordsTableCreateCompanionBuilder,
     $$ExperimentRecordsTableUpdateCompanionBuilder,
-    (
-      ExperimentRecord,
-      BaseReferences<_$AppDatabase, $ExperimentRecordsTable, ExperimentRecord>
-    ),
+    (ExperimentRecord, $$ExperimentRecordsTableReferences),
     ExperimentRecord,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function(
+        {bool cloningDetailsRefs,
+        bool transfectionDetailsRefs,
+        bool sirnaDetailsRefs,
+        bool purificationDetailsRefs})>;
 typedef $$CloningDetailsTableCreateCompanionBuilder = CloningDetailsCompanion
     Function({
   Value<int> id,
   required int experimentRecordId,
-  Value<String?> vector,
-  Value<String?> insertName,
-  Value<String?> tag,
-  Value<String?> selectionMarker,
-  Value<String?> expectedConstructSize,
-  Value<String?> cloneId,
-  Value<String?> screeningResult,
-  Value<String?> sequencingResult,
-  required DateTime createdAt,
-  required DateTime updatedAt,
+  Value<String?> experimentTitle,
+  Value<String?> researcher,
+  Value<DateTime?> experimentDate,
+  Value<String?> plasmidName,
+  Value<String?> plasmidFrame,
+  Value<String?> insertDirection,
+  Value<String?> vectorNotes,
+  Value<String?> fivePrimeRestrictionSite,
+  Value<String?> threePrimeRestrictionSite,
+  Value<String?> geneName,
+  Value<int?> insertLengthBp,
+  Value<String?> geneSequence,
+  Value<String?> geneSource,
+  Value<String?> hostBacteria,
+  Value<String?> selectionAntibiotic,
+  Value<int?> positiveCloneCount,
+  Value<String?> transformationNotes,
+  Value<String?> screeningMethod,
+  Value<String?> selectedColony,
+  Value<bool> restrictionDigestConfirmed,
+  Value<bool> colonyPcrConfirmed,
+  Value<bool> miniprepDone,
+  Value<String?> screeningNotes,
+  Value<bool> insertSequenceVerified,
+  Value<String?> sequencingPrimer,
+  Value<String?> additionalNotes,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
 });
 typedef $$CloningDetailsTableUpdateCompanionBuilder = CloningDetailsCompanion
     Function({
   Value<int> id,
   Value<int> experimentRecordId,
-  Value<String?> vector,
-  Value<String?> insertName,
-  Value<String?> tag,
-  Value<String?> selectionMarker,
-  Value<String?> expectedConstructSize,
-  Value<String?> cloneId,
-  Value<String?> screeningResult,
-  Value<String?> sequencingResult,
+  Value<String?> experimentTitle,
+  Value<String?> researcher,
+  Value<DateTime?> experimentDate,
+  Value<String?> plasmidName,
+  Value<String?> plasmidFrame,
+  Value<String?> insertDirection,
+  Value<String?> vectorNotes,
+  Value<String?> fivePrimeRestrictionSite,
+  Value<String?> threePrimeRestrictionSite,
+  Value<String?> geneName,
+  Value<int?> insertLengthBp,
+  Value<String?> geneSequence,
+  Value<String?> geneSource,
+  Value<String?> hostBacteria,
+  Value<String?> selectionAntibiotic,
+  Value<int?> positiveCloneCount,
+  Value<String?> transformationNotes,
+  Value<String?> screeningMethod,
+  Value<String?> selectedColony,
+  Value<bool> restrictionDigestConfirmed,
+  Value<bool> colonyPcrConfirmed,
+  Value<bool> miniprepDone,
+  Value<String?> screeningNotes,
+  Value<bool> insertSequenceVerified,
+  Value<String?> sequencingPrimer,
+  Value<String?> additionalNotes,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
+
+final class $$CloningDetailsTableReferences
+    extends BaseReferences<_$AppDatabase, $CloningDetailsTable, CloningDetail> {
+  $$CloningDetailsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ExperimentRecordsTable _experimentRecordIdTable(_$AppDatabase db) =>
+      db.experimentRecords.createAlias($_aliasNameGenerator(
+          db.cloningDetails.experimentRecordId, db.experimentRecords.id));
+
+  $$ExperimentRecordsTableProcessedTableManager get experimentRecordId {
+    final $_column = $_itemColumn<int>('experiment_record_id')!;
+
+    final manager =
+        $$ExperimentRecordsTableTableManager($_db, $_db.experimentRecords)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_experimentRecordIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
 
 class $$CloningDetailsTableFilterComposer
     extends Composer<_$AppDatabase, $CloningDetailsTable> {
@@ -4271,36 +5409,99 @@ class $$CloningDetailsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
+  ColumnFilters<String> get experimentTitle => $composableBuilder(
+      column: $table.experimentTitle,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get vector => $composableBuilder(
-      column: $table.vector, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get researcher => $composableBuilder(
+      column: $table.researcher, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get insertName => $composableBuilder(
-      column: $table.insertName, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get tag => $composableBuilder(
-      column: $table.tag, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get selectionMarker => $composableBuilder(
-      column: $table.selectionMarker,
+  ColumnFilters<DateTime> get experimentDate => $composableBuilder(
+      column: $table.experimentDate,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get expectedConstructSize => $composableBuilder(
-      column: $table.expectedConstructSize,
+  ColumnFilters<String> get plasmidName => $composableBuilder(
+      column: $table.plasmidName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get plasmidFrame => $composableBuilder(
+      column: $table.plasmidFrame, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get insertDirection => $composableBuilder(
+      column: $table.insertDirection,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get cloneId => $composableBuilder(
-      column: $table.cloneId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get vectorNotes => $composableBuilder(
+      column: $table.vectorNotes, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get screeningResult => $composableBuilder(
-      column: $table.screeningResult,
+  ColumnFilters<String> get fivePrimeRestrictionSite => $composableBuilder(
+      column: $table.fivePrimeRestrictionSite,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get sequencingResult => $composableBuilder(
-      column: $table.sequencingResult,
+  ColumnFilters<String> get threePrimeRestrictionSite => $composableBuilder(
+      column: $table.threePrimeRestrictionSite,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geneName => $composableBuilder(
+      column: $table.geneName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get insertLengthBp => $composableBuilder(
+      column: $table.insertLengthBp,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geneSequence => $composableBuilder(
+      column: $table.geneSequence, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geneSource => $composableBuilder(
+      column: $table.geneSource, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get hostBacteria => $composableBuilder(
+      column: $table.hostBacteria, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get selectionAntibiotic => $composableBuilder(
+      column: $table.selectionAntibiotic,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get positiveCloneCount => $composableBuilder(
+      column: $table.positiveCloneCount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get transformationNotes => $composableBuilder(
+      column: $table.transformationNotes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get screeningMethod => $composableBuilder(
+      column: $table.screeningMethod,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get selectedColony => $composableBuilder(
+      column: $table.selectedColony,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get restrictionDigestConfirmed => $composableBuilder(
+      column: $table.restrictionDigestConfirmed,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get colonyPcrConfirmed => $composableBuilder(
+      column: $table.colonyPcrConfirmed,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get miniprepDone => $composableBuilder(
+      column: $table.miniprepDone, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get screeningNotes => $composableBuilder(
+      column: $table.screeningNotes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get insertSequenceVerified => $composableBuilder(
+      column: $table.insertSequenceVerified,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sequencingPrimer => $composableBuilder(
+      column: $table.sequencingPrimer,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get additionalNotes => $composableBuilder(
+      column: $table.additionalNotes,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
@@ -4308,6 +5509,26 @@ class $$CloningDetailsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ExperimentRecordsTableFilterComposer get experimentRecordId {
+    final $$ExperimentRecordsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableFilterComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$CloningDetailsTableOrderingComposer
@@ -4322,36 +5543,103 @@ class $$CloningDetailsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
+  ColumnOrderings<String> get experimentTitle => $composableBuilder(
+      column: $table.experimentTitle,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get vector => $composableBuilder(
-      column: $table.vector, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get researcher => $composableBuilder(
+      column: $table.researcher, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get insertName => $composableBuilder(
-      column: $table.insertName, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get tag => $composableBuilder(
-      column: $table.tag, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get selectionMarker => $composableBuilder(
-      column: $table.selectionMarker,
+  ColumnOrderings<DateTime> get experimentDate => $composableBuilder(
+      column: $table.experimentDate,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get expectedConstructSize => $composableBuilder(
-      column: $table.expectedConstructSize,
+  ColumnOrderings<String> get plasmidName => $composableBuilder(
+      column: $table.plasmidName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get plasmidFrame => $composableBuilder(
+      column: $table.plasmidFrame,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get cloneId => $composableBuilder(
-      column: $table.cloneId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get screeningResult => $composableBuilder(
-      column: $table.screeningResult,
+  ColumnOrderings<String> get insertDirection => $composableBuilder(
+      column: $table.insertDirection,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get sequencingResult => $composableBuilder(
-      column: $table.sequencingResult,
+  ColumnOrderings<String> get vectorNotes => $composableBuilder(
+      column: $table.vectorNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fivePrimeRestrictionSite => $composableBuilder(
+      column: $table.fivePrimeRestrictionSite,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get threePrimeRestrictionSite => $composableBuilder(
+      column: $table.threePrimeRestrictionSite,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get geneName => $composableBuilder(
+      column: $table.geneName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get insertLengthBp => $composableBuilder(
+      column: $table.insertLengthBp,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get geneSequence => $composableBuilder(
+      column: $table.geneSequence,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get geneSource => $composableBuilder(
+      column: $table.geneSource, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get hostBacteria => $composableBuilder(
+      column: $table.hostBacteria,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get selectionAntibiotic => $composableBuilder(
+      column: $table.selectionAntibiotic,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get positiveCloneCount => $composableBuilder(
+      column: $table.positiveCloneCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transformationNotes => $composableBuilder(
+      column: $table.transformationNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get screeningMethod => $composableBuilder(
+      column: $table.screeningMethod,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get selectedColony => $composableBuilder(
+      column: $table.selectedColony,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get restrictionDigestConfirmed => $composableBuilder(
+      column: $table.restrictionDigestConfirmed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get colonyPcrConfirmed => $composableBuilder(
+      column: $table.colonyPcrConfirmed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get miniprepDone => $composableBuilder(
+      column: $table.miniprepDone,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get screeningNotes => $composableBuilder(
+      column: $table.screeningNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get insertSequenceVerified => $composableBuilder(
+      column: $table.insertSequenceVerified,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sequencingPrimer => $composableBuilder(
+      column: $table.sequencingPrimer,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get additionalNotes => $composableBuilder(
+      column: $table.additionalNotes,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
@@ -4359,6 +5647,26 @@ class $$CloningDetailsTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ExperimentRecordsTableOrderingComposer get experimentRecordId {
+    final $$ExperimentRecordsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableOrderingComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$CloningDetailsTableAnnotationComposer
@@ -4373,38 +5681,110 @@ class $$CloningDetailsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId, builder: (column) => column);
+  GeneratedColumn<String> get experimentTitle => $composableBuilder(
+      column: $table.experimentTitle, builder: (column) => column);
 
-  GeneratedColumn<String> get vector =>
-      $composableBuilder(column: $table.vector, builder: (column) => column);
+  GeneratedColumn<String> get researcher => $composableBuilder(
+      column: $table.researcher, builder: (column) => column);
 
-  GeneratedColumn<String> get insertName => $composableBuilder(
-      column: $table.insertName, builder: (column) => column);
+  GeneratedColumn<DateTime> get experimentDate => $composableBuilder(
+      column: $table.experimentDate, builder: (column) => column);
 
-  GeneratedColumn<String> get tag =>
-      $composableBuilder(column: $table.tag, builder: (column) => column);
+  GeneratedColumn<String> get plasmidName => $composableBuilder(
+      column: $table.plasmidName, builder: (column) => column);
 
-  GeneratedColumn<String> get selectionMarker => $composableBuilder(
-      column: $table.selectionMarker, builder: (column) => column);
+  GeneratedColumn<String> get plasmidFrame => $composableBuilder(
+      column: $table.plasmidFrame, builder: (column) => column);
 
-  GeneratedColumn<String> get expectedConstructSize => $composableBuilder(
-      column: $table.expectedConstructSize, builder: (column) => column);
+  GeneratedColumn<String> get insertDirection => $composableBuilder(
+      column: $table.insertDirection, builder: (column) => column);
 
-  GeneratedColumn<String> get cloneId =>
-      $composableBuilder(column: $table.cloneId, builder: (column) => column);
+  GeneratedColumn<String> get vectorNotes => $composableBuilder(
+      column: $table.vectorNotes, builder: (column) => column);
 
-  GeneratedColumn<String> get screeningResult => $composableBuilder(
-      column: $table.screeningResult, builder: (column) => column);
+  GeneratedColumn<String> get fivePrimeRestrictionSite => $composableBuilder(
+      column: $table.fivePrimeRestrictionSite, builder: (column) => column);
 
-  GeneratedColumn<String> get sequencingResult => $composableBuilder(
-      column: $table.sequencingResult, builder: (column) => column);
+  GeneratedColumn<String> get threePrimeRestrictionSite => $composableBuilder(
+      column: $table.threePrimeRestrictionSite, builder: (column) => column);
+
+  GeneratedColumn<String> get geneName =>
+      $composableBuilder(column: $table.geneName, builder: (column) => column);
+
+  GeneratedColumn<int> get insertLengthBp => $composableBuilder(
+      column: $table.insertLengthBp, builder: (column) => column);
+
+  GeneratedColumn<String> get geneSequence => $composableBuilder(
+      column: $table.geneSequence, builder: (column) => column);
+
+  GeneratedColumn<String> get geneSource => $composableBuilder(
+      column: $table.geneSource, builder: (column) => column);
+
+  GeneratedColumn<String> get hostBacteria => $composableBuilder(
+      column: $table.hostBacteria, builder: (column) => column);
+
+  GeneratedColumn<String> get selectionAntibiotic => $composableBuilder(
+      column: $table.selectionAntibiotic, builder: (column) => column);
+
+  GeneratedColumn<int> get positiveCloneCount => $composableBuilder(
+      column: $table.positiveCloneCount, builder: (column) => column);
+
+  GeneratedColumn<String> get transformationNotes => $composableBuilder(
+      column: $table.transformationNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get screeningMethod => $composableBuilder(
+      column: $table.screeningMethod, builder: (column) => column);
+
+  GeneratedColumn<String> get selectedColony => $composableBuilder(
+      column: $table.selectedColony, builder: (column) => column);
+
+  GeneratedColumn<bool> get restrictionDigestConfirmed => $composableBuilder(
+      column: $table.restrictionDigestConfirmed, builder: (column) => column);
+
+  GeneratedColumn<bool> get colonyPcrConfirmed => $composableBuilder(
+      column: $table.colonyPcrConfirmed, builder: (column) => column);
+
+  GeneratedColumn<bool> get miniprepDone => $composableBuilder(
+      column: $table.miniprepDone, builder: (column) => column);
+
+  GeneratedColumn<String> get screeningNotes => $composableBuilder(
+      column: $table.screeningNotes, builder: (column) => column);
+
+  GeneratedColumn<bool> get insertSequenceVerified => $composableBuilder(
+      column: $table.insertSequenceVerified, builder: (column) => column);
+
+  GeneratedColumn<String> get sequencingPrimer => $composableBuilder(
+      column: $table.sequencingPrimer, builder: (column) => column);
+
+  GeneratedColumn<String> get additionalNotes => $composableBuilder(
+      column: $table.additionalNotes, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ExperimentRecordsTableAnnotationComposer get experimentRecordId {
+    final $$ExperimentRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.experimentRecordId,
+            referencedTable: $db.experimentRecords,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ExperimentRecordsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.experimentRecords,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
 }
 
 class $$CloningDetailsTableTableManager extends RootTableManager<
@@ -4416,12 +5796,9 @@ class $$CloningDetailsTableTableManager extends RootTableManager<
     $$CloningDetailsTableAnnotationComposer,
     $$CloningDetailsTableCreateCompanionBuilder,
     $$CloningDetailsTableUpdateCompanionBuilder,
-    (
-      CloningDetail,
-      BaseReferences<_$AppDatabase, $CloningDetailsTable, CloningDetail>
-    ),
+    (CloningDetail, $$CloningDetailsTableReferences),
     CloningDetail,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool experimentRecordId})> {
   $$CloningDetailsTableTableManager(
       _$AppDatabase db, $CloningDetailsTable table)
       : super(TableManagerState(
@@ -4436,63 +5813,173 @@ class $$CloningDetailsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> experimentRecordId = const Value.absent(),
-            Value<String?> vector = const Value.absent(),
-            Value<String?> insertName = const Value.absent(),
-            Value<String?> tag = const Value.absent(),
-            Value<String?> selectionMarker = const Value.absent(),
-            Value<String?> expectedConstructSize = const Value.absent(),
-            Value<String?> cloneId = const Value.absent(),
-            Value<String?> screeningResult = const Value.absent(),
-            Value<String?> sequencingResult = const Value.absent(),
+            Value<String?> experimentTitle = const Value.absent(),
+            Value<String?> researcher = const Value.absent(),
+            Value<DateTime?> experimentDate = const Value.absent(),
+            Value<String?> plasmidName = const Value.absent(),
+            Value<String?> plasmidFrame = const Value.absent(),
+            Value<String?> insertDirection = const Value.absent(),
+            Value<String?> vectorNotes = const Value.absent(),
+            Value<String?> fivePrimeRestrictionSite = const Value.absent(),
+            Value<String?> threePrimeRestrictionSite = const Value.absent(),
+            Value<String?> geneName = const Value.absent(),
+            Value<int?> insertLengthBp = const Value.absent(),
+            Value<String?> geneSequence = const Value.absent(),
+            Value<String?> geneSource = const Value.absent(),
+            Value<String?> hostBacteria = const Value.absent(),
+            Value<String?> selectionAntibiotic = const Value.absent(),
+            Value<int?> positiveCloneCount = const Value.absent(),
+            Value<String?> transformationNotes = const Value.absent(),
+            Value<String?> screeningMethod = const Value.absent(),
+            Value<String?> selectedColony = const Value.absent(),
+            Value<bool> restrictionDigestConfirmed = const Value.absent(),
+            Value<bool> colonyPcrConfirmed = const Value.absent(),
+            Value<bool> miniprepDone = const Value.absent(),
+            Value<String?> screeningNotes = const Value.absent(),
+            Value<bool> insertSequenceVerified = const Value.absent(),
+            Value<String?> sequencingPrimer = const Value.absent(),
+            Value<String?> additionalNotes = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               CloningDetailsCompanion(
             id: id,
             experimentRecordId: experimentRecordId,
-            vector: vector,
-            insertName: insertName,
-            tag: tag,
-            selectionMarker: selectionMarker,
-            expectedConstructSize: expectedConstructSize,
-            cloneId: cloneId,
-            screeningResult: screeningResult,
-            sequencingResult: sequencingResult,
+            experimentTitle: experimentTitle,
+            researcher: researcher,
+            experimentDate: experimentDate,
+            plasmidName: plasmidName,
+            plasmidFrame: plasmidFrame,
+            insertDirection: insertDirection,
+            vectorNotes: vectorNotes,
+            fivePrimeRestrictionSite: fivePrimeRestrictionSite,
+            threePrimeRestrictionSite: threePrimeRestrictionSite,
+            geneName: geneName,
+            insertLengthBp: insertLengthBp,
+            geneSequence: geneSequence,
+            geneSource: geneSource,
+            hostBacteria: hostBacteria,
+            selectionAntibiotic: selectionAntibiotic,
+            positiveCloneCount: positiveCloneCount,
+            transformationNotes: transformationNotes,
+            screeningMethod: screeningMethod,
+            selectedColony: selectedColony,
+            restrictionDigestConfirmed: restrictionDigestConfirmed,
+            colonyPcrConfirmed: colonyPcrConfirmed,
+            miniprepDone: miniprepDone,
+            screeningNotes: screeningNotes,
+            insertSequenceVerified: insertSequenceVerified,
+            sequencingPrimer: sequencingPrimer,
+            additionalNotes: additionalNotes,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required int experimentRecordId,
-            Value<String?> vector = const Value.absent(),
-            Value<String?> insertName = const Value.absent(),
-            Value<String?> tag = const Value.absent(),
-            Value<String?> selectionMarker = const Value.absent(),
-            Value<String?> expectedConstructSize = const Value.absent(),
-            Value<String?> cloneId = const Value.absent(),
-            Value<String?> screeningResult = const Value.absent(),
-            Value<String?> sequencingResult = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
+            Value<String?> experimentTitle = const Value.absent(),
+            Value<String?> researcher = const Value.absent(),
+            Value<DateTime?> experimentDate = const Value.absent(),
+            Value<String?> plasmidName = const Value.absent(),
+            Value<String?> plasmidFrame = const Value.absent(),
+            Value<String?> insertDirection = const Value.absent(),
+            Value<String?> vectorNotes = const Value.absent(),
+            Value<String?> fivePrimeRestrictionSite = const Value.absent(),
+            Value<String?> threePrimeRestrictionSite = const Value.absent(),
+            Value<String?> geneName = const Value.absent(),
+            Value<int?> insertLengthBp = const Value.absent(),
+            Value<String?> geneSequence = const Value.absent(),
+            Value<String?> geneSource = const Value.absent(),
+            Value<String?> hostBacteria = const Value.absent(),
+            Value<String?> selectionAntibiotic = const Value.absent(),
+            Value<int?> positiveCloneCount = const Value.absent(),
+            Value<String?> transformationNotes = const Value.absent(),
+            Value<String?> screeningMethod = const Value.absent(),
+            Value<String?> selectedColony = const Value.absent(),
+            Value<bool> restrictionDigestConfirmed = const Value.absent(),
+            Value<bool> colonyPcrConfirmed = const Value.absent(),
+            Value<bool> miniprepDone = const Value.absent(),
+            Value<String?> screeningNotes = const Value.absent(),
+            Value<bool> insertSequenceVerified = const Value.absent(),
+            Value<String?> sequencingPrimer = const Value.absent(),
+            Value<String?> additionalNotes = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               CloningDetailsCompanion.insert(
             id: id,
             experimentRecordId: experimentRecordId,
-            vector: vector,
-            insertName: insertName,
-            tag: tag,
-            selectionMarker: selectionMarker,
-            expectedConstructSize: expectedConstructSize,
-            cloneId: cloneId,
-            screeningResult: screeningResult,
-            sequencingResult: sequencingResult,
+            experimentTitle: experimentTitle,
+            researcher: researcher,
+            experimentDate: experimentDate,
+            plasmidName: plasmidName,
+            plasmidFrame: plasmidFrame,
+            insertDirection: insertDirection,
+            vectorNotes: vectorNotes,
+            fivePrimeRestrictionSite: fivePrimeRestrictionSite,
+            threePrimeRestrictionSite: threePrimeRestrictionSite,
+            geneName: geneName,
+            insertLengthBp: insertLengthBp,
+            geneSequence: geneSequence,
+            geneSource: geneSource,
+            hostBacteria: hostBacteria,
+            selectionAntibiotic: selectionAntibiotic,
+            positiveCloneCount: positiveCloneCount,
+            transformationNotes: transformationNotes,
+            screeningMethod: screeningMethod,
+            selectedColony: selectedColony,
+            restrictionDigestConfirmed: restrictionDigestConfirmed,
+            colonyPcrConfirmed: colonyPcrConfirmed,
+            miniprepDone: miniprepDone,
+            screeningNotes: screeningNotes,
+            insertSequenceVerified: insertSequenceVerified,
+            sequencingPrimer: sequencingPrimer,
+            additionalNotes: additionalNotes,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$CloningDetailsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({experimentRecordId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (experimentRecordId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.experimentRecordId,
+                    referencedTable: $$CloningDetailsTableReferences
+                        ._experimentRecordIdTable(db),
+                    referencedColumn: $$CloningDetailsTableReferences
+                        ._experimentRecordIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -4505,12 +5992,9 @@ typedef $$CloningDetailsTableProcessedTableManager = ProcessedTableManager<
     $$CloningDetailsTableAnnotationComposer,
     $$CloningDetailsTableCreateCompanionBuilder,
     $$CloningDetailsTableUpdateCompanionBuilder,
-    (
-      CloningDetail,
-      BaseReferences<_$AppDatabase, $CloningDetailsTable, CloningDetail>
-    ),
+    (CloningDetail, $$CloningDetailsTableReferences),
     CloningDetail,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool experimentRecordId})>;
 typedef $$TransfectionDetailsTableCreateCompanionBuilder
     = TransfectionDetailsCompanion Function({
   Value<int> id,
@@ -4546,6 +6030,28 @@ typedef $$TransfectionDetailsTableUpdateCompanionBuilder
   Value<DateTime> updatedAt,
 });
 
+final class $$TransfectionDetailsTableReferences extends BaseReferences<
+    _$AppDatabase, $TransfectionDetailsTable, TransfectionDetail> {
+  $$TransfectionDetailsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ExperimentRecordsTable _experimentRecordIdTable(_$AppDatabase db) =>
+      db.experimentRecords.createAlias($_aliasNameGenerator(
+          db.transfectionDetails.experimentRecordId, db.experimentRecords.id));
+
+  $$ExperimentRecordsTableProcessedTableManager get experimentRecordId {
+    final $_column = $_itemColumn<int>('experiment_record_id')!;
+
+    final manager =
+        $$ExperimentRecordsTableTableManager($_db, $_db.experimentRecords)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_experimentRecordIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
 class $$TransfectionDetailsTableFilterComposer
     extends Composer<_$AppDatabase, $TransfectionDetailsTable> {
   $$TransfectionDetailsTableFilterComposer({
@@ -4557,10 +6063,6 @@ class $$TransfectionDetailsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get cellLine => $composableBuilder(
       column: $table.cellLine, builder: (column) => ColumnFilters(column));
@@ -4603,6 +6105,26 @@ class $$TransfectionDetailsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ExperimentRecordsTableFilterComposer get experimentRecordId {
+    final $$ExperimentRecordsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableFilterComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TransfectionDetailsTableOrderingComposer
@@ -4616,10 +6138,6 @@ class $$TransfectionDetailsTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get cellLine => $composableBuilder(
       column: $table.cellLine, builder: (column) => ColumnOrderings(column));
@@ -4664,6 +6182,26 @@ class $$TransfectionDetailsTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ExperimentRecordsTableOrderingComposer get experimentRecordId {
+    final $$ExperimentRecordsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableOrderingComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TransfectionDetailsTableAnnotationComposer
@@ -4677,9 +6215,6 @@ class $$TransfectionDetailsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId, builder: (column) => column);
 
   GeneratedColumn<String> get cellLine =>
       $composableBuilder(column: $table.cellLine, builder: (column) => column);
@@ -4716,6 +6251,27 @@ class $$TransfectionDetailsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ExperimentRecordsTableAnnotationComposer get experimentRecordId {
+    final $$ExperimentRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.experimentRecordId,
+            referencedTable: $db.experimentRecords,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ExperimentRecordsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.experimentRecords,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
 }
 
 class $$TransfectionDetailsTableTableManager extends RootTableManager<
@@ -4727,13 +6283,9 @@ class $$TransfectionDetailsTableTableManager extends RootTableManager<
     $$TransfectionDetailsTableAnnotationComposer,
     $$TransfectionDetailsTableCreateCompanionBuilder,
     $$TransfectionDetailsTableUpdateCompanionBuilder,
-    (
-      TransfectionDetail,
-      BaseReferences<_$AppDatabase, $TransfectionDetailsTable,
-          TransfectionDetail>
-    ),
+    (TransfectionDetail, $$TransfectionDetailsTableReferences),
     TransfectionDetail,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool experimentRecordId})> {
   $$TransfectionDetailsTableTableManager(
       _$AppDatabase db, $TransfectionDetailsTable table)
       : super(TableManagerState(
@@ -4812,9 +6364,47 @@ class $$TransfectionDetailsTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$TransfectionDetailsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({experimentRecordId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (experimentRecordId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.experimentRecordId,
+                    referencedTable: $$TransfectionDetailsTableReferences
+                        ._experimentRecordIdTable(db),
+                    referencedColumn: $$TransfectionDetailsTableReferences
+                        ._experimentRecordIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -4827,13 +6417,9 @@ typedef $$TransfectionDetailsTableProcessedTableManager = ProcessedTableManager<
     $$TransfectionDetailsTableAnnotationComposer,
     $$TransfectionDetailsTableCreateCompanionBuilder,
     $$TransfectionDetailsTableUpdateCompanionBuilder,
-    (
-      TransfectionDetail,
-      BaseReferences<_$AppDatabase, $TransfectionDetailsTable,
-          TransfectionDetail>
-    ),
+    (TransfectionDetail, $$TransfectionDetailsTableReferences),
     TransfectionDetail,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool experimentRecordId})>;
 typedef $$SirnaDetailsTableCreateCompanionBuilder = SirnaDetailsCompanion
     Function({
   Value<int> id,
@@ -4857,6 +6443,27 @@ typedef $$SirnaDetailsTableUpdateCompanionBuilder = SirnaDetailsCompanion
   Value<String?> notes,
 });
 
+final class $$SirnaDetailsTableReferences
+    extends BaseReferences<_$AppDatabase, $SirnaDetailsTable, SirnaDetail> {
+  $$SirnaDetailsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ExperimentRecordsTable _experimentRecordIdTable(_$AppDatabase db) =>
+      db.experimentRecords.createAlias($_aliasNameGenerator(
+          db.sirnaDetails.experimentRecordId, db.experimentRecords.id));
+
+  $$ExperimentRecordsTableProcessedTableManager get experimentRecordId {
+    final $_column = $_itemColumn<int>('experiment_record_id')!;
+
+    final manager =
+        $$ExperimentRecordsTableTableManager($_db, $_db.experimentRecords)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_experimentRecordIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
 class $$SirnaDetailsTableFilterComposer
     extends Composer<_$AppDatabase, $SirnaDetailsTable> {
   $$SirnaDetailsTableFilterComposer({
@@ -4868,10 +6475,6 @@ class $$SirnaDetailsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get targetGene => $composableBuilder(
       column: $table.targetGene, builder: (column) => ColumnFilters(column));
@@ -4891,6 +6494,26 @@ class $$SirnaDetailsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  $$ExperimentRecordsTableFilterComposer get experimentRecordId {
+    final $$ExperimentRecordsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableFilterComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$SirnaDetailsTableOrderingComposer
@@ -4904,10 +6527,6 @@ class $$SirnaDetailsTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get targetGene => $composableBuilder(
       column: $table.targetGene, builder: (column) => ColumnOrderings(column));
@@ -4928,6 +6547,26 @@ class $$SirnaDetailsTableOrderingComposer
 
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  $$ExperimentRecordsTableOrderingComposer get experimentRecordId {
+    final $$ExperimentRecordsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableOrderingComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$SirnaDetailsTableAnnotationComposer
@@ -4941,9 +6580,6 @@ class $$SirnaDetailsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId, builder: (column) => column);
 
   GeneratedColumn<String> get targetGene => $composableBuilder(
       column: $table.targetGene, builder: (column) => column);
@@ -4962,6 +6598,27 @@ class $$SirnaDetailsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$ExperimentRecordsTableAnnotationComposer get experimentRecordId {
+    final $$ExperimentRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.experimentRecordId,
+            referencedTable: $db.experimentRecords,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ExperimentRecordsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.experimentRecords,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
 }
 
 class $$SirnaDetailsTableTableManager extends RootTableManager<
@@ -4973,12 +6630,9 @@ class $$SirnaDetailsTableTableManager extends RootTableManager<
     $$SirnaDetailsTableAnnotationComposer,
     $$SirnaDetailsTableCreateCompanionBuilder,
     $$SirnaDetailsTableUpdateCompanionBuilder,
-    (
-      SirnaDetail,
-      BaseReferences<_$AppDatabase, $SirnaDetailsTable, SirnaDetail>
-    ),
+    (SirnaDetail, $$SirnaDetailsTableReferences),
     SirnaDetail,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool experimentRecordId})> {
   $$SirnaDetailsTableTableManager(_$AppDatabase db, $SirnaDetailsTable table)
       : super(TableManagerState(
           db: db,
@@ -5030,9 +6684,47 @@ class $$SirnaDetailsTableTableManager extends RootTableManager<
             notes: notes,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$SirnaDetailsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({experimentRecordId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (experimentRecordId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.experimentRecordId,
+                    referencedTable: $$SirnaDetailsTableReferences
+                        ._experimentRecordIdTable(db),
+                    referencedColumn: $$SirnaDetailsTableReferences
+                        ._experimentRecordIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -5045,12 +6737,9 @@ typedef $$SirnaDetailsTableProcessedTableManager = ProcessedTableManager<
     $$SirnaDetailsTableAnnotationComposer,
     $$SirnaDetailsTableCreateCompanionBuilder,
     $$SirnaDetailsTableUpdateCompanionBuilder,
-    (
-      SirnaDetail,
-      BaseReferences<_$AppDatabase, $SirnaDetailsTable, SirnaDetail>
-    ),
+    (SirnaDetail, $$SirnaDetailsTableReferences),
     SirnaDetail,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool experimentRecordId})>;
 typedef $$PurificationDetailsTableCreateCompanionBuilder
     = PurificationDetailsCompanion Function({
   Value<int> id,
@@ -5074,6 +6763,28 @@ typedef $$PurificationDetailsTableUpdateCompanionBuilder
   Value<String?> notes,
 });
 
+final class $$PurificationDetailsTableReferences extends BaseReferences<
+    _$AppDatabase, $PurificationDetailsTable, PurificationDetail> {
+  $$PurificationDetailsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ExperimentRecordsTable _experimentRecordIdTable(_$AppDatabase db) =>
+      db.experimentRecords.createAlias($_aliasNameGenerator(
+          db.purificationDetails.experimentRecordId, db.experimentRecords.id));
+
+  $$ExperimentRecordsTableProcessedTableManager get experimentRecordId {
+    final $_column = $_itemColumn<int>('experiment_record_id')!;
+
+    final manager =
+        $$ExperimentRecordsTableTableManager($_db, $_db.experimentRecords)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_experimentRecordIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
 class $$PurificationDetailsTableFilterComposer
     extends Composer<_$AppDatabase, $PurificationDetailsTable> {
   $$PurificationDetailsTableFilterComposer({
@@ -5085,10 +6796,6 @@ class $$PurificationDetailsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sampleName => $composableBuilder(
       column: $table.sampleName, builder: (column) => ColumnFilters(column));
@@ -5110,6 +6817,26 @@ class $$PurificationDetailsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  $$ExperimentRecordsTableFilterComposer get experimentRecordId {
+    final $$ExperimentRecordsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableFilterComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PurificationDetailsTableOrderingComposer
@@ -5123,10 +6850,6 @@ class $$PurificationDetailsTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sampleName => $composableBuilder(
       column: $table.sampleName, builder: (column) => ColumnOrderings(column));
@@ -5148,6 +6871,26 @@ class $$PurificationDetailsTableOrderingComposer
 
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  $$ExperimentRecordsTableOrderingComposer get experimentRecordId {
+    final $$ExperimentRecordsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.experimentRecordId,
+        referencedTable: $db.experimentRecords,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ExperimentRecordsTableOrderingComposer(
+              $db: $db,
+              $table: $db.experimentRecords,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PurificationDetailsTableAnnotationComposer
@@ -5161,9 +6904,6 @@ class $$PurificationDetailsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<int> get experimentRecordId => $composableBuilder(
-      column: $table.experimentRecordId, builder: (column) => column);
 
   GeneratedColumn<String> get sampleName => $composableBuilder(
       column: $table.sampleName, builder: (column) => column);
@@ -5182,6 +6922,27 @@ class $$PurificationDetailsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$ExperimentRecordsTableAnnotationComposer get experimentRecordId {
+    final $$ExperimentRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.experimentRecordId,
+            referencedTable: $db.experimentRecords,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ExperimentRecordsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.experimentRecords,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
 }
 
 class $$PurificationDetailsTableTableManager extends RootTableManager<
@@ -5193,13 +6954,9 @@ class $$PurificationDetailsTableTableManager extends RootTableManager<
     $$PurificationDetailsTableAnnotationComposer,
     $$PurificationDetailsTableCreateCompanionBuilder,
     $$PurificationDetailsTableUpdateCompanionBuilder,
-    (
-      PurificationDetail,
-      BaseReferences<_$AppDatabase, $PurificationDetailsTable,
-          PurificationDetail>
-    ),
+    (PurificationDetail, $$PurificationDetailsTableReferences),
     PurificationDetail,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool experimentRecordId})> {
   $$PurificationDetailsTableTableManager(
       _$AppDatabase db, $PurificationDetailsTable table)
       : super(TableManagerState(
@@ -5254,9 +7011,47 @@ class $$PurificationDetailsTableTableManager extends RootTableManager<
             notes: notes,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$PurificationDetailsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({experimentRecordId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (experimentRecordId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.experimentRecordId,
+                    referencedTable: $$PurificationDetailsTableReferences
+                        ._experimentRecordIdTable(db),
+                    referencedColumn: $$PurificationDetailsTableReferences
+                        ._experimentRecordIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -5269,13 +7064,9 @@ typedef $$PurificationDetailsTableProcessedTableManager = ProcessedTableManager<
     $$PurificationDetailsTableAnnotationComposer,
     $$PurificationDetailsTableCreateCompanionBuilder,
     $$PurificationDetailsTableUpdateCompanionBuilder,
-    (
-      PurificationDetail,
-      BaseReferences<_$AppDatabase, $PurificationDetailsTable,
-          PurificationDetail>
-    ),
+    (PurificationDetail, $$PurificationDetailsTableReferences),
     PurificationDetail,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool experimentRecordId})>;
 typedef $$PlasmidsTableCreateCompanionBuilder = PlasmidsCompanion Function({
   Value<int> id,
   required String plasmidName,

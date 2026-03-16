@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../database/app_database.dart';
+import 'package:drift/drift.dart' show Value;
 
 class PurificationFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -74,8 +75,8 @@ class _PurificationFormPageState extends State<PurificationFormPage> {
         ExperimentRecordsCompanion.insert(
           title: _titleController.text.trim(),
           module: 'Protein Purification',
-          createdAt: now,
-          updatedAt: now,
+          createdAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now()),
         ),
       );
 
