@@ -12,6 +12,7 @@ import 'package:printing/printing.dart';
 import 'package:molecular_app/database/app_database.dart';
 import 'package:molecular_app/features/ncbi/ncbi_models.dart';
 import 'package:molecular_app/features/ncbi/ncbi_service.dart';
+import 'package:drift/drift.dart' show Value;
 
 class CloningFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -388,15 +389,13 @@ class _CloningFormPageState extends State<CloningFormPage> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      final experimentId = await widget.database.createCloningRecord(
-        experiment: ExperimentRecordsCompanion.insert(
-          title: _experimentTitleController.text.trim(),
-          module: 'DNA Cloning',
-          createdAt: _selectedDate,
-          updatedAt: DateTime.now(),
-          notes: Value(jsonEncode(_buildSummaryMap())),
-        ),
-        cloning: CloningDetailsCompanion(),
+      final now = DateTime.now();
+
+      final experiment = ExperimentRecordsCompanion(
+        title: Value(_titleController.text.trim()),
+        module: const Value('Cloning'),
+        createdAt: Value(now),
+        updatedAt: Value(now),
       );
 
       if (!mounted) return;

@@ -12,6 +12,7 @@ import 'tables/plasmids.dart';
 import 'tables/purification_details.dart';
 import 'tables/sirna_details.dart';
 import 'tables/transfection_details.dart';
+import '../data/addgene/addgene_parser.dart';
 
 part 'app_database.g.dart';
 
@@ -20,6 +21,55 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'molecular_app_db.sqlite'));
     return NativeDatabase(file);
+  });
+}
+
+/// Addgene import DTO
+class AddgenePlasmidImportData {
+  final String plasmidName;
+  final String? alias;
+  final String? addgeneId;
+  final String? backbone;
+  final String? insertGene;
+  final String? promoter;
+  final String? tag;
+  final String? bacterialAntibiotic;
+  final String? mammalianSelection;
+  final String? ori;
+  final int? sizeBp;
+  final String? genbankUrl;
+  final String? snapgeneUrl;
+  final String? notes;
+
+  AddgenePlasmidImportData({
+    required this.plasmidName,
+    this.alias,
+    this.addgeneId,
+    this.backbone,
+    this.insertGene,
+    this.promoter,
+    this.tag,
+    this.bacterialAntibiotic,
+    this.mammalianSelection,
+    this.ori,
+    this.sizeBp,
+    this.genbankUrl,
+    this.snapgeneUrl,
+    this.notes,
+  });
+}
+
+class CloningDetailWithPlasmids {
+  final CloningDetail detail;
+  final Plasmid? vectorPlasmid;
+  final Plasmid? insertPlasmid;
+  final Plasmid? destinationPlasmid;
+
+  CloningDetailWithPlasmids({
+    required this.detail,
+    required this.vectorPlasmid,
+    required this.insertPlasmid,
+    required this.destinationPlasmid,
   });
 }
 
@@ -38,7 +88,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -63,6 +113,28 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 7) {
             await m.createTable(cellLines);
+          }
+          if (from < 8) {
+            await m.addColumn(plasmids, plasmids.sourceType);
+            await m.addColumn(plasmids, plasmids.addgeneId);
+            await m.addColumn(plasmids, plasmids.backbone);
+            await m.addColumn(plasmids, plasmids.insertGene);
+            await m.addColumn(plasmids, plasmids.promoter);
+            await m.addColumn(plasmids, plasmids.tag);
+            await m.addColumn(plasmids, plasmids.bacterialAntibiotic);
+            await m.addColumn(plasmids, plasmids.mammalianSelection);
+            await m.addColumn(plasmids, plasmids.ori);
+            await m.addColumn(plasmids, plasmids.sizeBp);
+            await m.addColumn(plasmids, plasmids.genbankUrl);
+            await m.addColumn(plasmids, plasmids.snapgeneUrl);
+            await m.addColumn(plasmids, plasmids.isCloningSelectable);
+
+            await m.addColumn(cloningDetails, cloningDetails.vectorPlasmidId);
+            await m.addColumn(cloningDetails, cloningDetails.insertPlasmidId);
+            await m.addColumn(
+              cloningDetails,
+              cloningDetails.destinationPlasmidId,
+            );
           }
         },
       );
@@ -201,6 +273,32 @@ class AppDatabase extends _$AppDatabase {
     return updateCloningExperiment(
       experiment: experiment,
       detail: detail,
+    );
+  }
+
+  Future<CloningDetailWithPlasmids?> getCloningDetailWithPlasmidsByExperimentId(
+    int experimentId,
+  ) async {
+    final detail = await getCloningDetailByExperimentId(experimentId);
+    if (detail == null) return null;
+
+    final vector = detail.vectorPlasmidId == null
+        ? null
+        : await getPlasmidById(detail.vectorPlasmidId!);
+
+    final insert = detail.insertPlasmidId == null
+        ? null
+        : await getPlasmidById(detail.insertPlasmidId!);
+
+    final destination = detail.destinationPlasmidId == null
+        ? null
+        : await getPlasmidById(detail.destinationPlasmidId!);
+
+    return CloningDetailWithPlasmids(
+      detail: detail,
+      vectorPlasmid: vector,
+      insertPlasmid: insert,
+      destinationPlasmid: destination,
     );
   }
 
@@ -448,7 +546,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<Plasmid?> watchPlasmidById(int id) {
-    return (select(plasmids)..where((t) => t.id.equals(id))).watchSingleOrNull();
+    return (select(plasmids)..where((t) => t.id.equals(id)))
+        .watchSingleOrNull();
   }
 
   Future<bool> updatePlasmid(Plasmid plasmid) {
@@ -461,6 +560,121 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deletePlasmid(int id) {
     return deletePlasmidById(id);
+  }
+
+  Future<int> importAddgenePlasmid(AddgenePlasmidImportData data) async {
+    final normalizedAddgeneId = data.addgeneId?.trim();
+
+    if (normalizedAddgeneId != null && normalizedAddgeneId.isNotEmpty) {
+      final existing = await (select(plasmids)
+            ..where((t) => t.addgeneId.equals(normalizedAddgeneId)))
+          .getSingleOrNull();
+
+      if (existing != null) {
+        await (update(plasmids)..where((t) => t.id.equals(existing.id))).write(
+          PlasmidsCompanion(
+            plasmidName: Value(data.plasmidName),
+            alias: Value(data.alias),
+            sourceType: const Value('addgene'),
+            addgeneId: Value(normalizedAddgeneId),
+            backbone: Value(data.backbone),
+            insertGene: Value(data.insertGene),
+            promoter: Value(data.promoter),
+            tag: Value(data.tag),
+            bacterialAntibiotic: Value(data.bacterialAntibiotic),
+            mammalianSelection: Value(data.mammalianSelection),
+            ori: Value(data.ori),
+            sizeBp: Value(data.sizeBp),
+            genbankUrl: Value(data.genbankUrl),
+            snapgeneUrl: Value(data.snapgeneUrl),
+            notes: Value(data.notes),
+            isCloningSelectable: const Value(true),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        return existing.id;
+      }
+    }
+
+    return into(plasmids).insert(
+      PlasmidsCompanion.insert(
+        plasmidName: data.plasmidName,
+        alias: Value(data.alias),
+        sourceType: const Value('addgene'),
+        addgeneId: Value(normalizedAddgeneId),
+        backbone: Value(data.backbone),
+        insertGene: Value(data.insertGene),
+        promoter: Value(data.promoter),
+        tag: Value(data.tag),
+        bacterialAntibiotic: Value(data.bacterialAntibiotic),
+        mammalianSelection: Value(data.mammalianSelection),
+        ori: Value(data.ori),
+        sizeBp: Value(data.sizeBp),
+        genbankUrl: Value(data.genbankUrl),
+        snapgeneUrl: Value(data.snapgeneUrl),
+        notes: Value(data.notes),
+        isCloningSelectable: const Value(true),
+        updatedAt: Value(DateTime.now()),
+        createdAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<List<Plasmid>> searchSelectablePlasmids(String query) {
+    final normalized = query.trim();
+
+    final q = select(plasmids)
+      ..where((t) {
+        final selectable = t.isCloningSelectable.equals(true);
+
+        if (normalized.isEmpty) {
+          return selectable;
+        }
+
+        return selectable &
+            (t.plasmidName.like('%$normalized%') |
+                t.alias.like('%$normalized%') |
+                t.addgeneId.like('%$normalized%') |
+                t.backbone.like('%$normalized%') |
+                t.insertGene.like('%$normalized%'));
+      })
+      ..orderBy([
+        (t) => OrderingTerm(
+              expression: t.updatedAt,
+              mode: OrderingMode.desc,
+            ),
+      ]);
+
+    return q.get();
+  }
+
+  Stream<List<Plasmid>> watchSelectablePlasmids(String query) {
+    final normalized = query.trim();
+
+    final q = select(plasmids)
+      ..where((t) {
+        final selectable = t.isCloningSelectable.equals(true);
+
+        if (normalized.isEmpty) {
+          return selectable;
+        }
+
+        return selectable &
+            (t.plasmidName.like('%$normalized%') |
+                t.alias.like('%$normalized%') |
+                t.addgeneId.like('%$normalized%') |
+                t.backbone.like('%$normalized%') |
+                t.insertGene.like('%$normalized%'));
+      })
+      ..orderBy([
+        (t) => OrderingTerm(
+              expression: t.updatedAt,
+              mode: OrderingMode.desc,
+            ),
+      ]);
+
+    return q.watch();
   }
 
   // ---------------------------------------------------------------------------
@@ -498,7 +712,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<CellLine?> watchCellLineById(int id) {
-    return (select(cellLines)..where((t) => t.id.equals(id))).watchSingleOrNull();
+    return (select(cellLines)..where((t) => t.id.equals(id)))
+        .watchSingleOrNull();
   }
 
   Future<bool> updateCellLine(CellLine cellLine) {

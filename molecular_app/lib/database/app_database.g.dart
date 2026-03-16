@@ -22,24 +22,16 @@ class $ExperimentRecordsTable extends ExperimentRecords
   @override
   late final GeneratedColumn<String> module = GeneratedColumn<String>(
       'module', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('General'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _objectiveMeta =
-      const VerificationMeta('objective');
-  @override
-  late final GeneratedColumn<String> objective = GeneratedColumn<String>(
-      'objective', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sampleIdMeta =
-      const VerificationMeta('sampleId');
-  @override
-  late final GeneratedColumn<String> sampleId = GeneratedColumn<String>(
-      'sample_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -50,16 +42,20 @@ class $ExperimentRecordsTable extends ExperimentRecords
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
       'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, module, title, objective, sampleId, notes, createdAt, updatedAt];
+      [id, module, title, notes, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -76,22 +72,10 @@ class $ExperimentRecordsTable extends ExperimentRecords
     if (data.containsKey('module')) {
       context.handle(_moduleMeta,
           module.isAcceptableOrUnknown(data['module']!, _moduleMeta));
-    } else if (isInserting) {
-      context.missing(_moduleMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('objective')) {
-      context.handle(_objectiveMeta,
-          objective.isAcceptableOrUnknown(data['objective']!, _objectiveMeta));
-    }
-    if (data.containsKey('sample_id')) {
-      context.handle(_sampleIdMeta,
-          sampleId.isAcceptableOrUnknown(data['sample_id']!, _sampleIdMeta));
     }
     if (data.containsKey('notes')) {
       context.handle(
@@ -100,14 +84,10 @@ class $ExperimentRecordsTable extends ExperimentRecords
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -124,10 +104,6 @@ class $ExperimentRecordsTable extends ExperimentRecords
           .read(DriftSqlType.string, data['${effectivePrefix}module'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      objective: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}objective']),
-      sampleId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}sample_id']),
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
       createdAt: attachedDatabase.typeMapping
@@ -148,8 +124,6 @@ class ExperimentRecord extends DataClass
   final int id;
   final String module;
   final String title;
-  final String? objective;
-  final String? sampleId;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -157,8 +131,6 @@ class ExperimentRecord extends DataClass
       {required this.id,
       required this.module,
       required this.title,
-      this.objective,
-      this.sampleId,
       this.notes,
       required this.createdAt,
       required this.updatedAt});
@@ -168,12 +140,6 @@ class ExperimentRecord extends DataClass
     map['id'] = Variable<int>(id);
     map['module'] = Variable<String>(module);
     map['title'] = Variable<String>(title);
-    if (!nullToAbsent || objective != null) {
-      map['objective'] = Variable<String>(objective);
-    }
-    if (!nullToAbsent || sampleId != null) {
-      map['sample_id'] = Variable<String>(sampleId);
-    }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -187,12 +153,6 @@ class ExperimentRecord extends DataClass
       id: Value(id),
       module: Value(module),
       title: Value(title),
-      objective: objective == null && nullToAbsent
-          ? const Value.absent()
-          : Value(objective),
-      sampleId: sampleId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sampleId),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       createdAt: Value(createdAt),
@@ -207,8 +167,6 @@ class ExperimentRecord extends DataClass
       id: serializer.fromJson<int>(json['id']),
       module: serializer.fromJson<String>(json['module']),
       title: serializer.fromJson<String>(json['title']),
-      objective: serializer.fromJson<String?>(json['objective']),
-      sampleId: serializer.fromJson<String?>(json['sampleId']),
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -221,8 +179,6 @@ class ExperimentRecord extends DataClass
       'id': serializer.toJson<int>(id),
       'module': serializer.toJson<String>(module),
       'title': serializer.toJson<String>(title),
-      'objective': serializer.toJson<String?>(objective),
-      'sampleId': serializer.toJson<String?>(sampleId),
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -233,8 +189,6 @@ class ExperimentRecord extends DataClass
           {int? id,
           String? module,
           String? title,
-          Value<String?> objective = const Value.absent(),
-          Value<String?> sampleId = const Value.absent(),
           Value<String?> notes = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
@@ -242,8 +196,6 @@ class ExperimentRecord extends DataClass
         id: id ?? this.id,
         module: module ?? this.module,
         title: title ?? this.title,
-        objective: objective.present ? objective.value : this.objective,
-        sampleId: sampleId.present ? sampleId.value : this.sampleId,
         notes: notes.present ? notes.value : this.notes,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -253,8 +205,6 @@ class ExperimentRecord extends DataClass
       id: data.id.present ? data.id.value : this.id,
       module: data.module.present ? data.module.value : this.module,
       title: data.title.present ? data.title.value : this.title,
-      objective: data.objective.present ? data.objective.value : this.objective,
-      sampleId: data.sampleId.present ? data.sampleId.value : this.sampleId,
       notes: data.notes.present ? data.notes.value : this.notes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -267,8 +217,6 @@ class ExperimentRecord extends DataClass
           ..write('id: $id, ')
           ..write('module: $module, ')
           ..write('title: $title, ')
-          ..write('objective: $objective, ')
-          ..write('sampleId: $sampleId, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -277,8 +225,8 @@ class ExperimentRecord extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, module, title, objective, sampleId, notes, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(id, module, title, notes, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -286,8 +234,6 @@ class ExperimentRecord extends DataClass
           other.id == this.id &&
           other.module == this.module &&
           other.title == this.title &&
-          other.objective == this.objective &&
-          other.sampleId == this.sampleId &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -297,8 +243,6 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
   final Value<int> id;
   final Value<String> module;
   final Value<String> title;
-  final Value<String?> objective;
-  final Value<String?> sampleId;
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -306,31 +250,22 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
     this.id = const Value.absent(),
     this.module = const Value.absent(),
     this.title = const Value.absent(),
-    this.objective = const Value.absent(),
-    this.sampleId = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   ExperimentRecordsCompanion.insert({
     this.id = const Value.absent(),
-    required String module,
-    required String title,
-    this.objective = const Value.absent(),
-    this.sampleId = const Value.absent(),
+    this.module = const Value.absent(),
+    this.title = const Value.absent(),
     this.notes = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  })  : module = Value(module),
-        title = Value(title),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
   static Insertable<ExperimentRecord> custom({
     Expression<int>? id,
     Expression<String>? module,
     Expression<String>? title,
-    Expression<String>? objective,
-    Expression<String>? sampleId,
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -339,8 +274,6 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
       if (id != null) 'id': id,
       if (module != null) 'module': module,
       if (title != null) 'title': title,
-      if (objective != null) 'objective': objective,
-      if (sampleId != null) 'sample_id': sampleId,
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -351,8 +284,6 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
       {Value<int>? id,
       Value<String>? module,
       Value<String>? title,
-      Value<String?>? objective,
-      Value<String?>? sampleId,
       Value<String?>? notes,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
@@ -360,8 +291,6 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
       id: id ?? this.id,
       module: module ?? this.module,
       title: title ?? this.title,
-      objective: objective ?? this.objective,
-      sampleId: sampleId ?? this.sampleId,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -379,12 +308,6 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
-    }
-    if (objective.present) {
-      map['objective'] = Variable<String>(objective.value);
-    }
-    if (sampleId.present) {
-      map['sample_id'] = Variable<String>(sampleId.value);
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
@@ -404,8 +327,6 @@ class ExperimentRecordsCompanion extends UpdateCompanion<ExperimentRecord> {
           ..write('id: $id, ')
           ..write('module: $module, ')
           ..write('title: $title, ')
-          ..write('objective: $objective, ')
-          ..write('sampleId: $sampleId, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -435,78 +356,58 @@ class $CloningDetailsTable extends CloningDetails
   late final GeneratedColumn<int> experimentRecordId = GeneratedColumn<int>(
       'experiment_record_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _vectorMeta = const VerificationMeta('vector');
+  static const VerificationMeta _cloningMethodMeta =
+      const VerificationMeta('cloningMethod');
   @override
-  late final GeneratedColumn<String> vector = GeneratedColumn<String>(
-      'vector', aliasedName, true,
+  late final GeneratedColumn<String> cloningMethod = GeneratedColumn<String>(
+      'cloning_method', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _insertNameMeta =
-      const VerificationMeta('insertName');
+  static const VerificationMeta _enzyme1Meta =
+      const VerificationMeta('enzyme1');
   @override
-  late final GeneratedColumn<String> insertName = GeneratedColumn<String>(
-      'insert_name', aliasedName, true,
+  late final GeneratedColumn<String> enzyme1 = GeneratedColumn<String>(
+      'enzyme1', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
+  static const VerificationMeta _enzyme2Meta =
+      const VerificationMeta('enzyme2');
   @override
-  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
-      'tag', aliasedName, true,
+  late final GeneratedColumn<String> enzyme2 = GeneratedColumn<String>(
+      'enzyme2', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _selectionMarkerMeta =
-      const VerificationMeta('selectionMarker');
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
-  late final GeneratedColumn<String> selectionMarker = GeneratedColumn<String>(
-      'selection_marker', aliasedName, true,
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _expectedConstructSizeMeta =
-      const VerificationMeta('expectedConstructSize');
+  static const VerificationMeta _vectorPlasmidIdMeta =
+      const VerificationMeta('vectorPlasmidId');
   @override
-  late final GeneratedColumn<String> expectedConstructSize =
-      GeneratedColumn<String>('expected_construct_size', aliasedName, true,
-          type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _cloneIdMeta =
-      const VerificationMeta('cloneId');
+  late final GeneratedColumn<int> vectorPlasmidId = GeneratedColumn<int>(
+      'vector_plasmid_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _insertPlasmidIdMeta =
+      const VerificationMeta('insertPlasmidId');
   @override
-  late final GeneratedColumn<String> cloneId = GeneratedColumn<String>(
-      'clone_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _screeningResultMeta =
-      const VerificationMeta('screeningResult');
+  late final GeneratedColumn<int> insertPlasmidId = GeneratedColumn<int>(
+      'insert_plasmid_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _destinationPlasmidIdMeta =
+      const VerificationMeta('destinationPlasmidId');
   @override
-  late final GeneratedColumn<String> screeningResult = GeneratedColumn<String>(
-      'screening_result', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sequencingResultMeta =
-      const VerificationMeta('sequencingResult');
-  @override
-  late final GeneratedColumn<String> sequencingResult = GeneratedColumn<String>(
-      'sequencing_result', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  late final GeneratedColumn<int> destinationPlasmidId = GeneratedColumn<int>(
+      'destination_plasmid_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
         experimentRecordId,
-        vector,
-        insertName,
-        tag,
-        selectionMarker,
-        expectedConstructSize,
-        cloneId,
-        screeningResult,
-        sequencingResult,
-        createdAt,
-        updatedAt
+        cloningMethod,
+        enzyme1,
+        enzyme2,
+        notes,
+        vectorPlasmidId,
+        insertPlasmidId,
+        destinationPlasmidId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -529,59 +430,41 @@ class $CloningDetailsTable extends CloningDetails
     } else if (isInserting) {
       context.missing(_experimentRecordIdMeta);
     }
-    if (data.containsKey('vector')) {
-      context.handle(_vectorMeta,
-          vector.isAcceptableOrUnknown(data['vector']!, _vectorMeta));
-    }
-    if (data.containsKey('insert_name')) {
+    if (data.containsKey('cloning_method')) {
       context.handle(
-          _insertNameMeta,
-          insertName.isAcceptableOrUnknown(
-              data['insert_name']!, _insertNameMeta));
+          _cloningMethodMeta,
+          cloningMethod.isAcceptableOrUnknown(
+              data['cloning_method']!, _cloningMethodMeta));
     }
-    if (data.containsKey('tag')) {
+    if (data.containsKey('enzyme1')) {
+      context.handle(_enzyme1Meta,
+          enzyme1.isAcceptableOrUnknown(data['enzyme1']!, _enzyme1Meta));
+    }
+    if (data.containsKey('enzyme2')) {
+      context.handle(_enzyme2Meta,
+          enzyme2.isAcceptableOrUnknown(data['enzyme2']!, _enzyme2Meta));
+    }
+    if (data.containsKey('notes')) {
       context.handle(
-          _tagMeta, tag.isAcceptableOrUnknown(data['tag']!, _tagMeta));
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
     }
-    if (data.containsKey('selection_marker')) {
+    if (data.containsKey('vector_plasmid_id')) {
       context.handle(
-          _selectionMarkerMeta,
-          selectionMarker.isAcceptableOrUnknown(
-              data['selection_marker']!, _selectionMarkerMeta));
+          _vectorPlasmidIdMeta,
+          vectorPlasmidId.isAcceptableOrUnknown(
+              data['vector_plasmid_id']!, _vectorPlasmidIdMeta));
     }
-    if (data.containsKey('expected_construct_size')) {
+    if (data.containsKey('insert_plasmid_id')) {
       context.handle(
-          _expectedConstructSizeMeta,
-          expectedConstructSize.isAcceptableOrUnknown(
-              data['expected_construct_size']!, _expectedConstructSizeMeta));
+          _insertPlasmidIdMeta,
+          insertPlasmidId.isAcceptableOrUnknown(
+              data['insert_plasmid_id']!, _insertPlasmidIdMeta));
     }
-    if (data.containsKey('clone_id')) {
-      context.handle(_cloneIdMeta,
-          cloneId.isAcceptableOrUnknown(data['clone_id']!, _cloneIdMeta));
-    }
-    if (data.containsKey('screening_result')) {
+    if (data.containsKey('destination_plasmid_id')) {
       context.handle(
-          _screeningResultMeta,
-          screeningResult.isAcceptableOrUnknown(
-              data['screening_result']!, _screeningResultMeta));
-    }
-    if (data.containsKey('sequencing_result')) {
-      context.handle(
-          _sequencingResultMeta,
-          sequencingResult.isAcceptableOrUnknown(
-              data['sequencing_result']!, _sequencingResultMeta));
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
+          _destinationPlasmidIdMeta,
+          destinationPlasmidId.isAcceptableOrUnknown(
+              data['destination_plasmid_id']!, _destinationPlasmidIdMeta));
     }
     return context;
   }
@@ -596,27 +479,20 @@ class $CloningDetailsTable extends CloningDetails
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       experimentRecordId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}experiment_record_id'])!,
-      vector: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}vector']),
-      insertName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}insert_name']),
-      tag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tag']),
-      selectionMarker: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}selection_marker']),
-      expectedConstructSize: attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}expected_construct_size']),
-      cloneId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}clone_id']),
-      screeningResult: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}screening_result']),
-      sequencingResult: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}sequencing_result']),
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      cloningMethod: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cloning_method']),
+      enzyme1: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}enzyme1']),
+      enzyme2: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}enzyme2']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      vectorPlasmidId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}vector_plasmid_id']),
+      insertPlasmidId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}insert_plasmid_id']),
+      destinationPlasmidId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}destination_plasmid_id']),
     );
   }
 
@@ -629,60 +505,49 @@ class $CloningDetailsTable extends CloningDetails
 class CloningDetail extends DataClass implements Insertable<CloningDetail> {
   final int id;
   final int experimentRecordId;
-  final String? vector;
-  final String? insertName;
-  final String? tag;
-  final String? selectionMarker;
-  final String? expectedConstructSize;
-  final String? cloneId;
-  final String? screeningResult;
-  final String? sequencingResult;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String? cloningMethod;
+  final String? enzyme1;
+  final String? enzyme2;
+  final String? notes;
+  final int? vectorPlasmidId;
+  final int? insertPlasmidId;
+  final int? destinationPlasmidId;
   const CloningDetail(
       {required this.id,
       required this.experimentRecordId,
-      this.vector,
-      this.insertName,
-      this.tag,
-      this.selectionMarker,
-      this.expectedConstructSize,
-      this.cloneId,
-      this.screeningResult,
-      this.sequencingResult,
-      required this.createdAt,
-      required this.updatedAt});
+      this.cloningMethod,
+      this.enzyme1,
+      this.enzyme2,
+      this.notes,
+      this.vectorPlasmidId,
+      this.insertPlasmidId,
+      this.destinationPlasmidId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['experiment_record_id'] = Variable<int>(experimentRecordId);
-    if (!nullToAbsent || vector != null) {
-      map['vector'] = Variable<String>(vector);
+    if (!nullToAbsent || cloningMethod != null) {
+      map['cloning_method'] = Variable<String>(cloningMethod);
     }
-    if (!nullToAbsent || insertName != null) {
-      map['insert_name'] = Variable<String>(insertName);
+    if (!nullToAbsent || enzyme1 != null) {
+      map['enzyme1'] = Variable<String>(enzyme1);
     }
-    if (!nullToAbsent || tag != null) {
-      map['tag'] = Variable<String>(tag);
+    if (!nullToAbsent || enzyme2 != null) {
+      map['enzyme2'] = Variable<String>(enzyme2);
     }
-    if (!nullToAbsent || selectionMarker != null) {
-      map['selection_marker'] = Variable<String>(selectionMarker);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
     }
-    if (!nullToAbsent || expectedConstructSize != null) {
-      map['expected_construct_size'] = Variable<String>(expectedConstructSize);
+    if (!nullToAbsent || vectorPlasmidId != null) {
+      map['vector_plasmid_id'] = Variable<int>(vectorPlasmidId);
     }
-    if (!nullToAbsent || cloneId != null) {
-      map['clone_id'] = Variable<String>(cloneId);
+    if (!nullToAbsent || insertPlasmidId != null) {
+      map['insert_plasmid_id'] = Variable<int>(insertPlasmidId);
     }
-    if (!nullToAbsent || screeningResult != null) {
-      map['screening_result'] = Variable<String>(screeningResult);
+    if (!nullToAbsent || destinationPlasmidId != null) {
+      map['destination_plasmid_id'] = Variable<int>(destinationPlasmidId);
     }
-    if (!nullToAbsent || sequencingResult != null) {
-      map['sequencing_result'] = Variable<String>(sequencingResult);
-    }
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -690,29 +555,26 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return CloningDetailsCompanion(
       id: Value(id),
       experimentRecordId: Value(experimentRecordId),
-      vector:
-          vector == null && nullToAbsent ? const Value.absent() : Value(vector),
-      insertName: insertName == null && nullToAbsent
+      cloningMethod: cloningMethod == null && nullToAbsent
           ? const Value.absent()
-          : Value(insertName),
-      tag: tag == null && nullToAbsent ? const Value.absent() : Value(tag),
-      selectionMarker: selectionMarker == null && nullToAbsent
+          : Value(cloningMethod),
+      enzyme1: enzyme1 == null && nullToAbsent
           ? const Value.absent()
-          : Value(selectionMarker),
-      expectedConstructSize: expectedConstructSize == null && nullToAbsent
+          : Value(enzyme1),
+      enzyme2: enzyme2 == null && nullToAbsent
           ? const Value.absent()
-          : Value(expectedConstructSize),
-      cloneId: cloneId == null && nullToAbsent
+          : Value(enzyme2),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      vectorPlasmidId: vectorPlasmidId == null && nullToAbsent
           ? const Value.absent()
-          : Value(cloneId),
-      screeningResult: screeningResult == null && nullToAbsent
+          : Value(vectorPlasmidId),
+      insertPlasmidId: insertPlasmidId == null && nullToAbsent
           ? const Value.absent()
-          : Value(screeningResult),
-      sequencingResult: sequencingResult == null && nullToAbsent
+          : Value(insertPlasmidId),
+      destinationPlasmidId: destinationPlasmidId == null && nullToAbsent
           ? const Value.absent()
-          : Value(sequencingResult),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
+          : Value(destinationPlasmidId),
     );
   }
 
@@ -722,17 +584,14 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return CloningDetail(
       id: serializer.fromJson<int>(json['id']),
       experimentRecordId: serializer.fromJson<int>(json['experimentRecordId']),
-      vector: serializer.fromJson<String?>(json['vector']),
-      insertName: serializer.fromJson<String?>(json['insertName']),
-      tag: serializer.fromJson<String?>(json['tag']),
-      selectionMarker: serializer.fromJson<String?>(json['selectionMarker']),
-      expectedConstructSize:
-          serializer.fromJson<String?>(json['expectedConstructSize']),
-      cloneId: serializer.fromJson<String?>(json['cloneId']),
-      screeningResult: serializer.fromJson<String?>(json['screeningResult']),
-      sequencingResult: serializer.fromJson<String?>(json['sequencingResult']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      cloningMethod: serializer.fromJson<String?>(json['cloningMethod']),
+      enzyme1: serializer.fromJson<String?>(json['enzyme1']),
+      enzyme2: serializer.fromJson<String?>(json['enzyme2']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      vectorPlasmidId: serializer.fromJson<int?>(json['vectorPlasmidId']),
+      insertPlasmidId: serializer.fromJson<int?>(json['insertPlasmidId']),
+      destinationPlasmidId:
+          serializer.fromJson<int?>(json['destinationPlasmidId']),
     );
   }
   @override
@@ -741,54 +600,43 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'experimentRecordId': serializer.toJson<int>(experimentRecordId),
-      'vector': serializer.toJson<String?>(vector),
-      'insertName': serializer.toJson<String?>(insertName),
-      'tag': serializer.toJson<String?>(tag),
-      'selectionMarker': serializer.toJson<String?>(selectionMarker),
-      'expectedConstructSize':
-          serializer.toJson<String?>(expectedConstructSize),
-      'cloneId': serializer.toJson<String?>(cloneId),
-      'screeningResult': serializer.toJson<String?>(screeningResult),
-      'sequencingResult': serializer.toJson<String?>(sequencingResult),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'cloningMethod': serializer.toJson<String?>(cloningMethod),
+      'enzyme1': serializer.toJson<String?>(enzyme1),
+      'enzyme2': serializer.toJson<String?>(enzyme2),
+      'notes': serializer.toJson<String?>(notes),
+      'vectorPlasmidId': serializer.toJson<int?>(vectorPlasmidId),
+      'insertPlasmidId': serializer.toJson<int?>(insertPlasmidId),
+      'destinationPlasmidId': serializer.toJson<int?>(destinationPlasmidId),
     };
   }
 
   CloningDetail copyWith(
           {int? id,
           int? experimentRecordId,
-          Value<String?> vector = const Value.absent(),
-          Value<String?> insertName = const Value.absent(),
-          Value<String?> tag = const Value.absent(),
-          Value<String?> selectionMarker = const Value.absent(),
-          Value<String?> expectedConstructSize = const Value.absent(),
-          Value<String?> cloneId = const Value.absent(),
-          Value<String?> screeningResult = const Value.absent(),
-          Value<String?> sequencingResult = const Value.absent(),
-          DateTime? createdAt,
-          DateTime? updatedAt}) =>
+          Value<String?> cloningMethod = const Value.absent(),
+          Value<String?> enzyme1 = const Value.absent(),
+          Value<String?> enzyme2 = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          Value<int?> vectorPlasmidId = const Value.absent(),
+          Value<int?> insertPlasmidId = const Value.absent(),
+          Value<int?> destinationPlasmidId = const Value.absent()}) =>
       CloningDetail(
         id: id ?? this.id,
         experimentRecordId: experimentRecordId ?? this.experimentRecordId,
-        vector: vector.present ? vector.value : this.vector,
-        insertName: insertName.present ? insertName.value : this.insertName,
-        tag: tag.present ? tag.value : this.tag,
-        selectionMarker: selectionMarker.present
-            ? selectionMarker.value
-            : this.selectionMarker,
-        expectedConstructSize: expectedConstructSize.present
-            ? expectedConstructSize.value
-            : this.expectedConstructSize,
-        cloneId: cloneId.present ? cloneId.value : this.cloneId,
-        screeningResult: screeningResult.present
-            ? screeningResult.value
-            : this.screeningResult,
-        sequencingResult: sequencingResult.present
-            ? sequencingResult.value
-            : this.sequencingResult,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
+        cloningMethod:
+            cloningMethod.present ? cloningMethod.value : this.cloningMethod,
+        enzyme1: enzyme1.present ? enzyme1.value : this.enzyme1,
+        enzyme2: enzyme2.present ? enzyme2.value : this.enzyme2,
+        notes: notes.present ? notes.value : this.notes,
+        vectorPlasmidId: vectorPlasmidId.present
+            ? vectorPlasmidId.value
+            : this.vectorPlasmidId,
+        insertPlasmidId: insertPlasmidId.present
+            ? insertPlasmidId.value
+            : this.insertPlasmidId,
+        destinationPlasmidId: destinationPlasmidId.present
+            ? destinationPlasmidId.value
+            : this.destinationPlasmidId,
       );
   CloningDetail copyWithCompanion(CloningDetailsCompanion data) {
     return CloningDetail(
@@ -796,25 +644,21 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
       experimentRecordId: data.experimentRecordId.present
           ? data.experimentRecordId.value
           : this.experimentRecordId,
-      vector: data.vector.present ? data.vector.value : this.vector,
-      insertName:
-          data.insertName.present ? data.insertName.value : this.insertName,
-      tag: data.tag.present ? data.tag.value : this.tag,
-      selectionMarker: data.selectionMarker.present
-          ? data.selectionMarker.value
-          : this.selectionMarker,
-      expectedConstructSize: data.expectedConstructSize.present
-          ? data.expectedConstructSize.value
-          : this.expectedConstructSize,
-      cloneId: data.cloneId.present ? data.cloneId.value : this.cloneId,
-      screeningResult: data.screeningResult.present
-          ? data.screeningResult.value
-          : this.screeningResult,
-      sequencingResult: data.sequencingResult.present
-          ? data.sequencingResult.value
-          : this.sequencingResult,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      cloningMethod: data.cloningMethod.present
+          ? data.cloningMethod.value
+          : this.cloningMethod,
+      enzyme1: data.enzyme1.present ? data.enzyme1.value : this.enzyme1,
+      enzyme2: data.enzyme2.present ? data.enzyme2.value : this.enzyme2,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      vectorPlasmidId: data.vectorPlasmidId.present
+          ? data.vectorPlasmidId.value
+          : this.vectorPlasmidId,
+      insertPlasmidId: data.insertPlasmidId.present
+          ? data.insertPlasmidId.value
+          : this.insertPlasmidId,
+      destinationPlasmidId: data.destinationPlasmidId.present
+          ? data.destinationPlasmidId.value
+          : this.destinationPlasmidId,
     );
   }
 
@@ -823,16 +667,13 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
     return (StringBuffer('CloningDetail(')
           ..write('id: $id, ')
           ..write('experimentRecordId: $experimentRecordId, ')
-          ..write('vector: $vector, ')
-          ..write('insertName: $insertName, ')
-          ..write('tag: $tag, ')
-          ..write('selectionMarker: $selectionMarker, ')
-          ..write('expectedConstructSize: $expectedConstructSize, ')
-          ..write('cloneId: $cloneId, ')
-          ..write('screeningResult: $screeningResult, ')
-          ..write('sequencingResult: $sequencingResult, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('cloningMethod: $cloningMethod, ')
+          ..write('enzyme1: $enzyme1, ')
+          ..write('enzyme2: $enzyme2, ')
+          ..write('notes: $notes, ')
+          ..write('vectorPlasmidId: $vectorPlasmidId, ')
+          ..write('insertPlasmidId: $insertPlasmidId, ')
+          ..write('destinationPlasmidId: $destinationPlasmidId')
           ..write(')'))
         .toString();
   }
@@ -841,136 +682,106 @@ class CloningDetail extends DataClass implements Insertable<CloningDetail> {
   int get hashCode => Object.hash(
       id,
       experimentRecordId,
-      vector,
-      insertName,
-      tag,
-      selectionMarker,
-      expectedConstructSize,
-      cloneId,
-      screeningResult,
-      sequencingResult,
-      createdAt,
-      updatedAt);
+      cloningMethod,
+      enzyme1,
+      enzyme2,
+      notes,
+      vectorPlasmidId,
+      insertPlasmidId,
+      destinationPlasmidId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CloningDetail &&
           other.id == this.id &&
           other.experimentRecordId == this.experimentRecordId &&
-          other.vector == this.vector &&
-          other.insertName == this.insertName &&
-          other.tag == this.tag &&
-          other.selectionMarker == this.selectionMarker &&
-          other.expectedConstructSize == this.expectedConstructSize &&
-          other.cloneId == this.cloneId &&
-          other.screeningResult == this.screeningResult &&
-          other.sequencingResult == this.sequencingResult &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.cloningMethod == this.cloningMethod &&
+          other.enzyme1 == this.enzyme1 &&
+          other.enzyme2 == this.enzyme2 &&
+          other.notes == this.notes &&
+          other.vectorPlasmidId == this.vectorPlasmidId &&
+          other.insertPlasmidId == this.insertPlasmidId &&
+          other.destinationPlasmidId == this.destinationPlasmidId);
 }
 
 class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
   final Value<int> id;
   final Value<int> experimentRecordId;
-  final Value<String?> vector;
-  final Value<String?> insertName;
-  final Value<String?> tag;
-  final Value<String?> selectionMarker;
-  final Value<String?> expectedConstructSize;
-  final Value<String?> cloneId;
-  final Value<String?> screeningResult;
-  final Value<String?> sequencingResult;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
+  final Value<String?> cloningMethod;
+  final Value<String?> enzyme1;
+  final Value<String?> enzyme2;
+  final Value<String?> notes;
+  final Value<int?> vectorPlasmidId;
+  final Value<int?> insertPlasmidId;
+  final Value<int?> destinationPlasmidId;
   const CloningDetailsCompanion({
     this.id = const Value.absent(),
     this.experimentRecordId = const Value.absent(),
-    this.vector = const Value.absent(),
-    this.insertName = const Value.absent(),
-    this.tag = const Value.absent(),
-    this.selectionMarker = const Value.absent(),
-    this.expectedConstructSize = const Value.absent(),
-    this.cloneId = const Value.absent(),
-    this.screeningResult = const Value.absent(),
-    this.sequencingResult = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    this.cloningMethod = const Value.absent(),
+    this.enzyme1 = const Value.absent(),
+    this.enzyme2 = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.vectorPlasmidId = const Value.absent(),
+    this.insertPlasmidId = const Value.absent(),
+    this.destinationPlasmidId = const Value.absent(),
   });
   CloningDetailsCompanion.insert({
     this.id = const Value.absent(),
     required int experimentRecordId,
-    this.vector = const Value.absent(),
-    this.insertName = const Value.absent(),
-    this.tag = const Value.absent(),
-    this.selectionMarker = const Value.absent(),
-    this.expectedConstructSize = const Value.absent(),
-    this.cloneId = const Value.absent(),
-    this.screeningResult = const Value.absent(),
-    this.sequencingResult = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  })  : experimentRecordId = Value(experimentRecordId),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
+    this.cloningMethod = const Value.absent(),
+    this.enzyme1 = const Value.absent(),
+    this.enzyme2 = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.vectorPlasmidId = const Value.absent(),
+    this.insertPlasmidId = const Value.absent(),
+    this.destinationPlasmidId = const Value.absent(),
+  }) : experimentRecordId = Value(experimentRecordId);
   static Insertable<CloningDetail> custom({
     Expression<int>? id,
     Expression<int>? experimentRecordId,
-    Expression<String>? vector,
-    Expression<String>? insertName,
-    Expression<String>? tag,
-    Expression<String>? selectionMarker,
-    Expression<String>? expectedConstructSize,
-    Expression<String>? cloneId,
-    Expression<String>? screeningResult,
-    Expression<String>? sequencingResult,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
+    Expression<String>? cloningMethod,
+    Expression<String>? enzyme1,
+    Expression<String>? enzyme2,
+    Expression<String>? notes,
+    Expression<int>? vectorPlasmidId,
+    Expression<int>? insertPlasmidId,
+    Expression<int>? destinationPlasmidId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (experimentRecordId != null)
         'experiment_record_id': experimentRecordId,
-      if (vector != null) 'vector': vector,
-      if (insertName != null) 'insert_name': insertName,
-      if (tag != null) 'tag': tag,
-      if (selectionMarker != null) 'selection_marker': selectionMarker,
-      if (expectedConstructSize != null)
-        'expected_construct_size': expectedConstructSize,
-      if (cloneId != null) 'clone_id': cloneId,
-      if (screeningResult != null) 'screening_result': screeningResult,
-      if (sequencingResult != null) 'sequencing_result': sequencingResult,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
+      if (cloningMethod != null) 'cloning_method': cloningMethod,
+      if (enzyme1 != null) 'enzyme1': enzyme1,
+      if (enzyme2 != null) 'enzyme2': enzyme2,
+      if (notes != null) 'notes': notes,
+      if (vectorPlasmidId != null) 'vector_plasmid_id': vectorPlasmidId,
+      if (insertPlasmidId != null) 'insert_plasmid_id': insertPlasmidId,
+      if (destinationPlasmidId != null)
+        'destination_plasmid_id': destinationPlasmidId,
     });
   }
 
   CloningDetailsCompanion copyWith(
       {Value<int>? id,
       Value<int>? experimentRecordId,
-      Value<String?>? vector,
-      Value<String?>? insertName,
-      Value<String?>? tag,
-      Value<String?>? selectionMarker,
-      Value<String?>? expectedConstructSize,
-      Value<String?>? cloneId,
-      Value<String?>? screeningResult,
-      Value<String?>? sequencingResult,
-      Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt}) {
+      Value<String?>? cloningMethod,
+      Value<String?>? enzyme1,
+      Value<String?>? enzyme2,
+      Value<String?>? notes,
+      Value<int?>? vectorPlasmidId,
+      Value<int?>? insertPlasmidId,
+      Value<int?>? destinationPlasmidId}) {
     return CloningDetailsCompanion(
       id: id ?? this.id,
       experimentRecordId: experimentRecordId ?? this.experimentRecordId,
-      vector: vector ?? this.vector,
-      insertName: insertName ?? this.insertName,
-      tag: tag ?? this.tag,
-      selectionMarker: selectionMarker ?? this.selectionMarker,
-      expectedConstructSize:
-          expectedConstructSize ?? this.expectedConstructSize,
-      cloneId: cloneId ?? this.cloneId,
-      screeningResult: screeningResult ?? this.screeningResult,
-      sequencingResult: sequencingResult ?? this.sequencingResult,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      cloningMethod: cloningMethod ?? this.cloningMethod,
+      enzyme1: enzyme1 ?? this.enzyme1,
+      enzyme2: enzyme2 ?? this.enzyme2,
+      notes: notes ?? this.notes,
+      vectorPlasmidId: vectorPlasmidId ?? this.vectorPlasmidId,
+      insertPlasmidId: insertPlasmidId ?? this.insertPlasmidId,
+      destinationPlasmidId: destinationPlasmidId ?? this.destinationPlasmidId,
     );
   }
 
@@ -983,36 +794,26 @@ class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
     if (experimentRecordId.present) {
       map['experiment_record_id'] = Variable<int>(experimentRecordId.value);
     }
-    if (vector.present) {
-      map['vector'] = Variable<String>(vector.value);
+    if (cloningMethod.present) {
+      map['cloning_method'] = Variable<String>(cloningMethod.value);
     }
-    if (insertName.present) {
-      map['insert_name'] = Variable<String>(insertName.value);
+    if (enzyme1.present) {
+      map['enzyme1'] = Variable<String>(enzyme1.value);
     }
-    if (tag.present) {
-      map['tag'] = Variable<String>(tag.value);
+    if (enzyme2.present) {
+      map['enzyme2'] = Variable<String>(enzyme2.value);
     }
-    if (selectionMarker.present) {
-      map['selection_marker'] = Variable<String>(selectionMarker.value);
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
     }
-    if (expectedConstructSize.present) {
-      map['expected_construct_size'] =
-          Variable<String>(expectedConstructSize.value);
+    if (vectorPlasmidId.present) {
+      map['vector_plasmid_id'] = Variable<int>(vectorPlasmidId.value);
     }
-    if (cloneId.present) {
-      map['clone_id'] = Variable<String>(cloneId.value);
+    if (insertPlasmidId.present) {
+      map['insert_plasmid_id'] = Variable<int>(insertPlasmidId.value);
     }
-    if (screeningResult.present) {
-      map['screening_result'] = Variable<String>(screeningResult.value);
-    }
-    if (sequencingResult.present) {
-      map['sequencing_result'] = Variable<String>(sequencingResult.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    if (destinationPlasmidId.present) {
+      map['destination_plasmid_id'] = Variable<int>(destinationPlasmidId.value);
     }
     return map;
   }
@@ -1022,16 +823,13 @@ class CloningDetailsCompanion extends UpdateCompanion<CloningDetail> {
     return (StringBuffer('CloningDetailsCompanion(')
           ..write('id: $id, ')
           ..write('experimentRecordId: $experimentRecordId, ')
-          ..write('vector: $vector, ')
-          ..write('insertName: $insertName, ')
-          ..write('tag: $tag, ')
-          ..write('selectionMarker: $selectionMarker, ')
-          ..write('expectedConstructSize: $expectedConstructSize, ')
-          ..write('cloneId: $cloneId, ')
-          ..write('screeningResult: $screeningResult, ')
-          ..write('sequencingResult: $sequencingResult, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('cloningMethod: $cloningMethod, ')
+          ..write('enzyme1: $enzyme1, ')
+          ..write('enzyme2: $enzyme2, ')
+          ..write('notes: $notes, ')
+          ..write('vectorPlasmidId: $vectorPlasmidId, ')
+          ..write('insertPlasmidId: $insertPlasmidId, ')
+          ..write('destinationPlasmidId: $destinationPlasmidId')
           ..write(')'))
         .toString();
   }
@@ -2700,6 +2498,25 @@ class $PlasmidsTable extends Plasmids with TableInfo<$PlasmidsTable, Plasmid> {
   late final GeneratedColumn<String> plasmidName = GeneratedColumn<String>(
       'plasmid_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _aliasMeta = const VerificationMeta('alias');
+  @override
+  late final GeneratedColumn<String> alias = GeneratedColumn<String>(
+      'alias', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('custom'));
+  static const VerificationMeta _addgeneIdMeta =
+      const VerificationMeta('addgeneId');
+  @override
+  late final GeneratedColumn<String> addgeneId = GeneratedColumn<String>(
+      'addgene_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _backboneMeta =
       const VerificationMeta('backbone');
   @override
@@ -2712,88 +2529,101 @@ class $PlasmidsTable extends Plasmids with TableInfo<$PlasmidsTable, Plasmid> {
   late final GeneratedColumn<String> insertGene = GeneratedColumn<String>(
       'insert_gene', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
-  @override
-  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
-      'tag', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _promoterMeta =
       const VerificationMeta('promoter');
   @override
   late final GeneratedColumn<String> promoter = GeneratedColumn<String>(
       'promoter', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _antibioticResistanceMeta =
-      const VerificationMeta('antibioticResistance');
+  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
   @override
-  late final GeneratedColumn<String> antibioticResistance =
-      GeneratedColumn<String>('antibiotic_resistance', aliasedName, true,
+  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
+      'tag', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bacterialAntibioticMeta =
+      const VerificationMeta('bacterialAntibiotic');
+  @override
+  late final GeneratedColumn<String> bacterialAntibiotic =
+      GeneratedColumn<String>('bacterial_antibiotic', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _originMeta = const VerificationMeta('origin');
+  static const VerificationMeta _mammalianSelectionMeta =
+      const VerificationMeta('mammalianSelection');
   @override
-  late final GeneratedColumn<String> origin = GeneratedColumn<String>(
-      'origin', aliasedName, true,
+  late final GeneratedColumn<String> mammalianSelection =
+      GeneratedColumn<String>('mammalian_selection', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _oriMeta = const VerificationMeta('ori');
+  @override
+  late final GeneratedColumn<String> ori = GeneratedColumn<String>(
+      'ori', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _cloningStatusMeta =
-      const VerificationMeta('cloningStatus');
+  static const VerificationMeta _sizeBpMeta = const VerificationMeta('sizeBp');
   @override
-  late final GeneratedColumn<String> cloningStatus = GeneratedColumn<String>(
-      'cloning_status', aliasedName, true,
+  late final GeneratedColumn<int> sizeBp = GeneratedColumn<int>(
+      'size_bp', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _genbankUrlMeta =
+      const VerificationMeta('genbankUrl');
+  @override
+  late final GeneratedColumn<String> genbankUrl = GeneratedColumn<String>(
+      'genbank_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sequenceVerifiedMeta =
-      const VerificationMeta('sequenceVerified');
+  static const VerificationMeta _snapgeneUrlMeta =
+      const VerificationMeta('snapgeneUrl');
   @override
-  late final GeneratedColumn<bool> sequenceVerified = GeneratedColumn<bool>(
-      'sequence_verified', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("sequence_verified" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _storageLocationMeta =
-      const VerificationMeta('storageLocation');
-  @override
-  late final GeneratedColumn<String> storageLocation = GeneratedColumn<String>(
-      'storage_location', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _concentrationMeta =
-      const VerificationMeta('concentration');
-  @override
-  late final GeneratedColumn<String> concentration = GeneratedColumn<String>(
-      'concentration', aliasedName, true,
+  late final GeneratedColumn<String> snapgeneUrl = GeneratedColumn<String>(
+      'snapgene_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isCloningSelectableMeta =
+      const VerificationMeta('isCloningSelectable');
+  @override
+  late final GeneratedColumn<bool> isCloningSelectable = GeneratedColumn<bool>(
+      'is_cloning_selectable', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_cloning_selectable" IN (0, 1))'),
+      defaultValue: const Constant(true));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
       'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns => [
         id,
         plasmidName,
+        alias,
+        sourceType,
+        addgeneId,
         backbone,
         insertGene,
-        tag,
         promoter,
-        antibioticResistance,
-        origin,
-        cloningStatus,
-        sequenceVerified,
-        storageLocation,
-        concentration,
+        tag,
+        bacterialAntibiotic,
+        mammalianSelection,
+        ori,
+        sizeBp,
+        genbankUrl,
+        snapgeneUrl,
         notes,
+        isCloningSelectable,
         createdAt,
         updatedAt
       ];
@@ -2818,6 +2648,20 @@ class $PlasmidsTable extends Plasmids with TableInfo<$PlasmidsTable, Plasmid> {
     } else if (isInserting) {
       context.missing(_plasmidNameMeta);
     }
+    if (data.containsKey('alias')) {
+      context.handle(
+          _aliasMeta, alias.isAcceptableOrUnknown(data['alias']!, _aliasMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('addgene_id')) {
+      context.handle(_addgeneIdMeta,
+          addgeneId.isAcceptableOrUnknown(data['addgene_id']!, _addgeneIdMeta));
+    }
     if (data.containsKey('backbone')) {
       context.handle(_backboneMeta,
           backbone.isAcceptableOrUnknown(data['backbone']!, _backboneMeta));
@@ -2828,63 +2672,63 @@ class $PlasmidsTable extends Plasmids with TableInfo<$PlasmidsTable, Plasmid> {
           insertGene.isAcceptableOrUnknown(
               data['insert_gene']!, _insertGeneMeta));
     }
-    if (data.containsKey('tag')) {
-      context.handle(
-          _tagMeta, tag.isAcceptableOrUnknown(data['tag']!, _tagMeta));
-    }
     if (data.containsKey('promoter')) {
       context.handle(_promoterMeta,
           promoter.isAcceptableOrUnknown(data['promoter']!, _promoterMeta));
     }
-    if (data.containsKey('antibiotic_resistance')) {
+    if (data.containsKey('tag')) {
       context.handle(
-          _antibioticResistanceMeta,
-          antibioticResistance.isAcceptableOrUnknown(
-              data['antibiotic_resistance']!, _antibioticResistanceMeta));
+          _tagMeta, tag.isAcceptableOrUnknown(data['tag']!, _tagMeta));
     }
-    if (data.containsKey('origin')) {
-      context.handle(_originMeta,
-          origin.isAcceptableOrUnknown(data['origin']!, _originMeta));
-    }
-    if (data.containsKey('cloning_status')) {
+    if (data.containsKey('bacterial_antibiotic')) {
       context.handle(
-          _cloningStatusMeta,
-          cloningStatus.isAcceptableOrUnknown(
-              data['cloning_status']!, _cloningStatusMeta));
+          _bacterialAntibioticMeta,
+          bacterialAntibiotic.isAcceptableOrUnknown(
+              data['bacterial_antibiotic']!, _bacterialAntibioticMeta));
     }
-    if (data.containsKey('sequence_verified')) {
+    if (data.containsKey('mammalian_selection')) {
       context.handle(
-          _sequenceVerifiedMeta,
-          sequenceVerified.isAcceptableOrUnknown(
-              data['sequence_verified']!, _sequenceVerifiedMeta));
+          _mammalianSelectionMeta,
+          mammalianSelection.isAcceptableOrUnknown(
+              data['mammalian_selection']!, _mammalianSelectionMeta));
     }
-    if (data.containsKey('storage_location')) {
+    if (data.containsKey('ori')) {
       context.handle(
-          _storageLocationMeta,
-          storageLocation.isAcceptableOrUnknown(
-              data['storage_location']!, _storageLocationMeta));
+          _oriMeta, ori.isAcceptableOrUnknown(data['ori']!, _oriMeta));
     }
-    if (data.containsKey('concentration')) {
+    if (data.containsKey('size_bp')) {
+      context.handle(_sizeBpMeta,
+          sizeBp.isAcceptableOrUnknown(data['size_bp']!, _sizeBpMeta));
+    }
+    if (data.containsKey('genbank_url')) {
       context.handle(
-          _concentrationMeta,
-          concentration.isAcceptableOrUnknown(
-              data['concentration']!, _concentrationMeta));
+          _genbankUrlMeta,
+          genbankUrl.isAcceptableOrUnknown(
+              data['genbank_url']!, _genbankUrlMeta));
+    }
+    if (data.containsKey('snapgene_url')) {
+      context.handle(
+          _snapgeneUrlMeta,
+          snapgeneUrl.isAcceptableOrUnknown(
+              data['snapgene_url']!, _snapgeneUrlMeta));
     }
     if (data.containsKey('notes')) {
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
     }
+    if (data.containsKey('is_cloning_selectable')) {
+      context.handle(
+          _isCloningSelectableMeta,
+          isCloningSelectable.isAcceptableOrUnknown(
+              data['is_cloning_selectable']!, _isCloningSelectableMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -2899,28 +2743,36 @@ class $PlasmidsTable extends Plasmids with TableInfo<$PlasmidsTable, Plasmid> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       plasmidName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}plasmid_name'])!,
+      alias: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}alias']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type'])!,
+      addgeneId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}addgene_id']),
       backbone: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}backbone']),
       insertGene: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}insert_gene']),
-      tag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tag']),
       promoter: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}promoter']),
-      antibioticResistance: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}antibiotic_resistance']),
-      origin: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}origin']),
-      cloningStatus: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}cloning_status']),
-      sequenceVerified: attachedDatabase.typeMapping.read(
-          DriftSqlType.bool, data['${effectivePrefix}sequence_verified'])!,
-      storageLocation: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}storage_location']),
-      concentration: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}concentration']),
+      tag: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tag']),
+      bacterialAntibiotic: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}bacterial_antibiotic']),
+      mammalianSelection: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}mammalian_selection']),
+      ori: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}ori']),
+      sizeBp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}size_bp']),
+      genbankUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genbank_url']),
+      snapgeneUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}snapgene_url']),
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      isCloningSelectable: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}is_cloning_selectable'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -2937,33 +2789,41 @@ class $PlasmidsTable extends Plasmids with TableInfo<$PlasmidsTable, Plasmid> {
 class Plasmid extends DataClass implements Insertable<Plasmid> {
   final int id;
   final String plasmidName;
+  final String? alias;
+  final String sourceType;
+  final String? addgeneId;
   final String? backbone;
   final String? insertGene;
-  final String? tag;
   final String? promoter;
-  final String? antibioticResistance;
-  final String? origin;
-  final String? cloningStatus;
-  final bool sequenceVerified;
-  final String? storageLocation;
-  final String? concentration;
+  final String? tag;
+  final String? bacterialAntibiotic;
+  final String? mammalianSelection;
+  final String? ori;
+  final int? sizeBp;
+  final String? genbankUrl;
+  final String? snapgeneUrl;
   final String? notes;
+  final bool isCloningSelectable;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Plasmid(
       {required this.id,
       required this.plasmidName,
+      this.alias,
+      required this.sourceType,
+      this.addgeneId,
       this.backbone,
       this.insertGene,
-      this.tag,
       this.promoter,
-      this.antibioticResistance,
-      this.origin,
-      this.cloningStatus,
-      required this.sequenceVerified,
-      this.storageLocation,
-      this.concentration,
+      this.tag,
+      this.bacterialAntibiotic,
+      this.mammalianSelection,
+      this.ori,
+      this.sizeBp,
+      this.genbankUrl,
+      this.snapgeneUrl,
       this.notes,
+      required this.isCloningSelectable,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -2971,37 +2831,47 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['plasmid_name'] = Variable<String>(plasmidName);
+    if (!nullToAbsent || alias != null) {
+      map['alias'] = Variable<String>(alias);
+    }
+    map['source_type'] = Variable<String>(sourceType);
+    if (!nullToAbsent || addgeneId != null) {
+      map['addgene_id'] = Variable<String>(addgeneId);
+    }
     if (!nullToAbsent || backbone != null) {
       map['backbone'] = Variable<String>(backbone);
     }
     if (!nullToAbsent || insertGene != null) {
       map['insert_gene'] = Variable<String>(insertGene);
     }
-    if (!nullToAbsent || tag != null) {
-      map['tag'] = Variable<String>(tag);
-    }
     if (!nullToAbsent || promoter != null) {
       map['promoter'] = Variable<String>(promoter);
     }
-    if (!nullToAbsent || antibioticResistance != null) {
-      map['antibiotic_resistance'] = Variable<String>(antibioticResistance);
+    if (!nullToAbsent || tag != null) {
+      map['tag'] = Variable<String>(tag);
     }
-    if (!nullToAbsent || origin != null) {
-      map['origin'] = Variable<String>(origin);
+    if (!nullToAbsent || bacterialAntibiotic != null) {
+      map['bacterial_antibiotic'] = Variable<String>(bacterialAntibiotic);
     }
-    if (!nullToAbsent || cloningStatus != null) {
-      map['cloning_status'] = Variable<String>(cloningStatus);
+    if (!nullToAbsent || mammalianSelection != null) {
+      map['mammalian_selection'] = Variable<String>(mammalianSelection);
     }
-    map['sequence_verified'] = Variable<bool>(sequenceVerified);
-    if (!nullToAbsent || storageLocation != null) {
-      map['storage_location'] = Variable<String>(storageLocation);
+    if (!nullToAbsent || ori != null) {
+      map['ori'] = Variable<String>(ori);
     }
-    if (!nullToAbsent || concentration != null) {
-      map['concentration'] = Variable<String>(concentration);
+    if (!nullToAbsent || sizeBp != null) {
+      map['size_bp'] = Variable<int>(sizeBp);
+    }
+    if (!nullToAbsent || genbankUrl != null) {
+      map['genbank_url'] = Variable<String>(genbankUrl);
+    }
+    if (!nullToAbsent || snapgeneUrl != null) {
+      map['snapgene_url'] = Variable<String>(snapgeneUrl);
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    map['is_cloning_selectable'] = Variable<bool>(isCloningSelectable);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -3011,33 +2881,40 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
     return PlasmidsCompanion(
       id: Value(id),
       plasmidName: Value(plasmidName),
+      alias:
+          alias == null && nullToAbsent ? const Value.absent() : Value(alias),
+      sourceType: Value(sourceType),
+      addgeneId: addgeneId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addgeneId),
       backbone: backbone == null && nullToAbsent
           ? const Value.absent()
           : Value(backbone),
       insertGene: insertGene == null && nullToAbsent
           ? const Value.absent()
           : Value(insertGene),
-      tag: tag == null && nullToAbsent ? const Value.absent() : Value(tag),
       promoter: promoter == null && nullToAbsent
           ? const Value.absent()
           : Value(promoter),
-      antibioticResistance: antibioticResistance == null && nullToAbsent
+      tag: tag == null && nullToAbsent ? const Value.absent() : Value(tag),
+      bacterialAntibiotic: bacterialAntibiotic == null && nullToAbsent
           ? const Value.absent()
-          : Value(antibioticResistance),
-      origin:
-          origin == null && nullToAbsent ? const Value.absent() : Value(origin),
-      cloningStatus: cloningStatus == null && nullToAbsent
+          : Value(bacterialAntibiotic),
+      mammalianSelection: mammalianSelection == null && nullToAbsent
           ? const Value.absent()
-          : Value(cloningStatus),
-      sequenceVerified: Value(sequenceVerified),
-      storageLocation: storageLocation == null && nullToAbsent
+          : Value(mammalianSelection),
+      ori: ori == null && nullToAbsent ? const Value.absent() : Value(ori),
+      sizeBp:
+          sizeBp == null && nullToAbsent ? const Value.absent() : Value(sizeBp),
+      genbankUrl: genbankUrl == null && nullToAbsent
           ? const Value.absent()
-          : Value(storageLocation),
-      concentration: concentration == null && nullToAbsent
+          : Value(genbankUrl),
+      snapgeneUrl: snapgeneUrl == null && nullToAbsent
           ? const Value.absent()
-          : Value(concentration),
+          : Value(snapgeneUrl),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      isCloningSelectable: Value(isCloningSelectable),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -3049,18 +2926,24 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
     return Plasmid(
       id: serializer.fromJson<int>(json['id']),
       plasmidName: serializer.fromJson<String>(json['plasmidName']),
+      alias: serializer.fromJson<String?>(json['alias']),
+      sourceType: serializer.fromJson<String>(json['sourceType']),
+      addgeneId: serializer.fromJson<String?>(json['addgeneId']),
       backbone: serializer.fromJson<String?>(json['backbone']),
       insertGene: serializer.fromJson<String?>(json['insertGene']),
-      tag: serializer.fromJson<String?>(json['tag']),
       promoter: serializer.fromJson<String?>(json['promoter']),
-      antibioticResistance:
-          serializer.fromJson<String?>(json['antibioticResistance']),
-      origin: serializer.fromJson<String?>(json['origin']),
-      cloningStatus: serializer.fromJson<String?>(json['cloningStatus']),
-      sequenceVerified: serializer.fromJson<bool>(json['sequenceVerified']),
-      storageLocation: serializer.fromJson<String?>(json['storageLocation']),
-      concentration: serializer.fromJson<String?>(json['concentration']),
+      tag: serializer.fromJson<String?>(json['tag']),
+      bacterialAntibiotic:
+          serializer.fromJson<String?>(json['bacterialAntibiotic']),
+      mammalianSelection:
+          serializer.fromJson<String?>(json['mammalianSelection']),
+      ori: serializer.fromJson<String?>(json['ori']),
+      sizeBp: serializer.fromJson<int?>(json['sizeBp']),
+      genbankUrl: serializer.fromJson<String?>(json['genbankUrl']),
+      snapgeneUrl: serializer.fromJson<String?>(json['snapgeneUrl']),
       notes: serializer.fromJson<String?>(json['notes']),
+      isCloningSelectable:
+          serializer.fromJson<bool>(json['isCloningSelectable']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -3071,17 +2954,21 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'plasmidName': serializer.toJson<String>(plasmidName),
+      'alias': serializer.toJson<String?>(alias),
+      'sourceType': serializer.toJson<String>(sourceType),
+      'addgeneId': serializer.toJson<String?>(addgeneId),
       'backbone': serializer.toJson<String?>(backbone),
       'insertGene': serializer.toJson<String?>(insertGene),
-      'tag': serializer.toJson<String?>(tag),
       'promoter': serializer.toJson<String?>(promoter),
-      'antibioticResistance': serializer.toJson<String?>(antibioticResistance),
-      'origin': serializer.toJson<String?>(origin),
-      'cloningStatus': serializer.toJson<String?>(cloningStatus),
-      'sequenceVerified': serializer.toJson<bool>(sequenceVerified),
-      'storageLocation': serializer.toJson<String?>(storageLocation),
-      'concentration': serializer.toJson<String?>(concentration),
+      'tag': serializer.toJson<String?>(tag),
+      'bacterialAntibiotic': serializer.toJson<String?>(bacterialAntibiotic),
+      'mammalianSelection': serializer.toJson<String?>(mammalianSelection),
+      'ori': serializer.toJson<String?>(ori),
+      'sizeBp': serializer.toJson<int?>(sizeBp),
+      'genbankUrl': serializer.toJson<String?>(genbankUrl),
+      'snapgeneUrl': serializer.toJson<String?>(snapgeneUrl),
       'notes': serializer.toJson<String?>(notes),
+      'isCloningSelectable': serializer.toJson<bool>(isCloningSelectable),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -3090,39 +2977,45 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
   Plasmid copyWith(
           {int? id,
           String? plasmidName,
+          Value<String?> alias = const Value.absent(),
+          String? sourceType,
+          Value<String?> addgeneId = const Value.absent(),
           Value<String?> backbone = const Value.absent(),
           Value<String?> insertGene = const Value.absent(),
-          Value<String?> tag = const Value.absent(),
           Value<String?> promoter = const Value.absent(),
-          Value<String?> antibioticResistance = const Value.absent(),
-          Value<String?> origin = const Value.absent(),
-          Value<String?> cloningStatus = const Value.absent(),
-          bool? sequenceVerified,
-          Value<String?> storageLocation = const Value.absent(),
-          Value<String?> concentration = const Value.absent(),
+          Value<String?> tag = const Value.absent(),
+          Value<String?> bacterialAntibiotic = const Value.absent(),
+          Value<String?> mammalianSelection = const Value.absent(),
+          Value<String?> ori = const Value.absent(),
+          Value<int?> sizeBp = const Value.absent(),
+          Value<String?> genbankUrl = const Value.absent(),
+          Value<String?> snapgeneUrl = const Value.absent(),
           Value<String?> notes = const Value.absent(),
+          bool? isCloningSelectable,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Plasmid(
         id: id ?? this.id,
         plasmidName: plasmidName ?? this.plasmidName,
+        alias: alias.present ? alias.value : this.alias,
+        sourceType: sourceType ?? this.sourceType,
+        addgeneId: addgeneId.present ? addgeneId.value : this.addgeneId,
         backbone: backbone.present ? backbone.value : this.backbone,
         insertGene: insertGene.present ? insertGene.value : this.insertGene,
-        tag: tag.present ? tag.value : this.tag,
         promoter: promoter.present ? promoter.value : this.promoter,
-        antibioticResistance: antibioticResistance.present
-            ? antibioticResistance.value
-            : this.antibioticResistance,
-        origin: origin.present ? origin.value : this.origin,
-        cloningStatus:
-            cloningStatus.present ? cloningStatus.value : this.cloningStatus,
-        sequenceVerified: sequenceVerified ?? this.sequenceVerified,
-        storageLocation: storageLocation.present
-            ? storageLocation.value
-            : this.storageLocation,
-        concentration:
-            concentration.present ? concentration.value : this.concentration,
+        tag: tag.present ? tag.value : this.tag,
+        bacterialAntibiotic: bacterialAntibiotic.present
+            ? bacterialAntibiotic.value
+            : this.bacterialAntibiotic,
+        mammalianSelection: mammalianSelection.present
+            ? mammalianSelection.value
+            : this.mammalianSelection,
+        ori: ori.present ? ori.value : this.ori,
+        sizeBp: sizeBp.present ? sizeBp.value : this.sizeBp,
+        genbankUrl: genbankUrl.present ? genbankUrl.value : this.genbankUrl,
+        snapgeneUrl: snapgeneUrl.present ? snapgeneUrl.value : this.snapgeneUrl,
         notes: notes.present ? notes.value : this.notes,
+        isCloningSelectable: isCloningSelectable ?? this.isCloningSelectable,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -3131,28 +3024,31 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
       id: data.id.present ? data.id.value : this.id,
       plasmidName:
           data.plasmidName.present ? data.plasmidName.value : this.plasmidName,
+      alias: data.alias.present ? data.alias.value : this.alias,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      addgeneId: data.addgeneId.present ? data.addgeneId.value : this.addgeneId,
       backbone: data.backbone.present ? data.backbone.value : this.backbone,
       insertGene:
           data.insertGene.present ? data.insertGene.value : this.insertGene,
-      tag: data.tag.present ? data.tag.value : this.tag,
       promoter: data.promoter.present ? data.promoter.value : this.promoter,
-      antibioticResistance: data.antibioticResistance.present
-          ? data.antibioticResistance.value
-          : this.antibioticResistance,
-      origin: data.origin.present ? data.origin.value : this.origin,
-      cloningStatus: data.cloningStatus.present
-          ? data.cloningStatus.value
-          : this.cloningStatus,
-      sequenceVerified: data.sequenceVerified.present
-          ? data.sequenceVerified.value
-          : this.sequenceVerified,
-      storageLocation: data.storageLocation.present
-          ? data.storageLocation.value
-          : this.storageLocation,
-      concentration: data.concentration.present
-          ? data.concentration.value
-          : this.concentration,
+      tag: data.tag.present ? data.tag.value : this.tag,
+      bacterialAntibiotic: data.bacterialAntibiotic.present
+          ? data.bacterialAntibiotic.value
+          : this.bacterialAntibiotic,
+      mammalianSelection: data.mammalianSelection.present
+          ? data.mammalianSelection.value
+          : this.mammalianSelection,
+      ori: data.ori.present ? data.ori.value : this.ori,
+      sizeBp: data.sizeBp.present ? data.sizeBp.value : this.sizeBp,
+      genbankUrl:
+          data.genbankUrl.present ? data.genbankUrl.value : this.genbankUrl,
+      snapgeneUrl:
+          data.snapgeneUrl.present ? data.snapgeneUrl.value : this.snapgeneUrl,
       notes: data.notes.present ? data.notes.value : this.notes,
+      isCloningSelectable: data.isCloningSelectable.present
+          ? data.isCloningSelectable.value
+          : this.isCloningSelectable,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -3163,17 +3059,21 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
     return (StringBuffer('Plasmid(')
           ..write('id: $id, ')
           ..write('plasmidName: $plasmidName, ')
+          ..write('alias: $alias, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('addgeneId: $addgeneId, ')
           ..write('backbone: $backbone, ')
           ..write('insertGene: $insertGene, ')
-          ..write('tag: $tag, ')
           ..write('promoter: $promoter, ')
-          ..write('antibioticResistance: $antibioticResistance, ')
-          ..write('origin: $origin, ')
-          ..write('cloningStatus: $cloningStatus, ')
-          ..write('sequenceVerified: $sequenceVerified, ')
-          ..write('storageLocation: $storageLocation, ')
-          ..write('concentration: $concentration, ')
+          ..write('tag: $tag, ')
+          ..write('bacterialAntibiotic: $bacterialAntibiotic, ')
+          ..write('mammalianSelection: $mammalianSelection, ')
+          ..write('ori: $ori, ')
+          ..write('sizeBp: $sizeBp, ')
+          ..write('genbankUrl: $genbankUrl, ')
+          ..write('snapgeneUrl: $snapgeneUrl, ')
           ..write('notes: $notes, ')
+          ..write('isCloningSelectable: $isCloningSelectable, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3184,17 +3084,21 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
   int get hashCode => Object.hash(
       id,
       plasmidName,
+      alias,
+      sourceType,
+      addgeneId,
       backbone,
       insertGene,
-      tag,
       promoter,
-      antibioticResistance,
-      origin,
-      cloningStatus,
-      sequenceVerified,
-      storageLocation,
-      concentration,
+      tag,
+      bacterialAntibiotic,
+      mammalianSelection,
+      ori,
+      sizeBp,
+      genbankUrl,
+      snapgeneUrl,
       notes,
+      isCloningSelectable,
       createdAt,
       updatedAt);
   @override
@@ -3203,17 +3107,21 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
       (other is Plasmid &&
           other.id == this.id &&
           other.plasmidName == this.plasmidName &&
+          other.alias == this.alias &&
+          other.sourceType == this.sourceType &&
+          other.addgeneId == this.addgeneId &&
           other.backbone == this.backbone &&
           other.insertGene == this.insertGene &&
-          other.tag == this.tag &&
           other.promoter == this.promoter &&
-          other.antibioticResistance == this.antibioticResistance &&
-          other.origin == this.origin &&
-          other.cloningStatus == this.cloningStatus &&
-          other.sequenceVerified == this.sequenceVerified &&
-          other.storageLocation == this.storageLocation &&
-          other.concentration == this.concentration &&
+          other.tag == this.tag &&
+          other.bacterialAntibiotic == this.bacterialAntibiotic &&
+          other.mammalianSelection == this.mammalianSelection &&
+          other.ori == this.ori &&
+          other.sizeBp == this.sizeBp &&
+          other.genbankUrl == this.genbankUrl &&
+          other.snapgeneUrl == this.snapgeneUrl &&
           other.notes == this.notes &&
+          other.isCloningSelectable == this.isCloningSelectable &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -3221,87 +3129,106 @@ class Plasmid extends DataClass implements Insertable<Plasmid> {
 class PlasmidsCompanion extends UpdateCompanion<Plasmid> {
   final Value<int> id;
   final Value<String> plasmidName;
+  final Value<String?> alias;
+  final Value<String> sourceType;
+  final Value<String?> addgeneId;
   final Value<String?> backbone;
   final Value<String?> insertGene;
-  final Value<String?> tag;
   final Value<String?> promoter;
-  final Value<String?> antibioticResistance;
-  final Value<String?> origin;
-  final Value<String?> cloningStatus;
-  final Value<bool> sequenceVerified;
-  final Value<String?> storageLocation;
-  final Value<String?> concentration;
+  final Value<String?> tag;
+  final Value<String?> bacterialAntibiotic;
+  final Value<String?> mammalianSelection;
+  final Value<String?> ori;
+  final Value<int?> sizeBp;
+  final Value<String?> genbankUrl;
+  final Value<String?> snapgeneUrl;
   final Value<String?> notes;
+  final Value<bool> isCloningSelectable;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const PlasmidsCompanion({
     this.id = const Value.absent(),
     this.plasmidName = const Value.absent(),
+    this.alias = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.addgeneId = const Value.absent(),
     this.backbone = const Value.absent(),
     this.insertGene = const Value.absent(),
-    this.tag = const Value.absent(),
     this.promoter = const Value.absent(),
-    this.antibioticResistance = const Value.absent(),
-    this.origin = const Value.absent(),
-    this.cloningStatus = const Value.absent(),
-    this.sequenceVerified = const Value.absent(),
-    this.storageLocation = const Value.absent(),
-    this.concentration = const Value.absent(),
+    this.tag = const Value.absent(),
+    this.bacterialAntibiotic = const Value.absent(),
+    this.mammalianSelection = const Value.absent(),
+    this.ori = const Value.absent(),
+    this.sizeBp = const Value.absent(),
+    this.genbankUrl = const Value.absent(),
+    this.snapgeneUrl = const Value.absent(),
     this.notes = const Value.absent(),
+    this.isCloningSelectable = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   PlasmidsCompanion.insert({
     this.id = const Value.absent(),
     required String plasmidName,
+    this.alias = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.addgeneId = const Value.absent(),
     this.backbone = const Value.absent(),
     this.insertGene = const Value.absent(),
-    this.tag = const Value.absent(),
     this.promoter = const Value.absent(),
-    this.antibioticResistance = const Value.absent(),
-    this.origin = const Value.absent(),
-    this.cloningStatus = const Value.absent(),
-    this.sequenceVerified = const Value.absent(),
-    this.storageLocation = const Value.absent(),
-    this.concentration = const Value.absent(),
+    this.tag = const Value.absent(),
+    this.bacterialAntibiotic = const Value.absent(),
+    this.mammalianSelection = const Value.absent(),
+    this.ori = const Value.absent(),
+    this.sizeBp = const Value.absent(),
+    this.genbankUrl = const Value.absent(),
+    this.snapgeneUrl = const Value.absent(),
     this.notes = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  })  : plasmidName = Value(plasmidName),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
+    this.isCloningSelectable = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : plasmidName = Value(plasmidName);
   static Insertable<Plasmid> custom({
     Expression<int>? id,
     Expression<String>? plasmidName,
+    Expression<String>? alias,
+    Expression<String>? sourceType,
+    Expression<String>? addgeneId,
     Expression<String>? backbone,
     Expression<String>? insertGene,
-    Expression<String>? tag,
     Expression<String>? promoter,
-    Expression<String>? antibioticResistance,
-    Expression<String>? origin,
-    Expression<String>? cloningStatus,
-    Expression<bool>? sequenceVerified,
-    Expression<String>? storageLocation,
-    Expression<String>? concentration,
+    Expression<String>? tag,
+    Expression<String>? bacterialAntibiotic,
+    Expression<String>? mammalianSelection,
+    Expression<String>? ori,
+    Expression<int>? sizeBp,
+    Expression<String>? genbankUrl,
+    Expression<String>? snapgeneUrl,
     Expression<String>? notes,
+    Expression<bool>? isCloningSelectable,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (plasmidName != null) 'plasmid_name': plasmidName,
+      if (alias != null) 'alias': alias,
+      if (sourceType != null) 'source_type': sourceType,
+      if (addgeneId != null) 'addgene_id': addgeneId,
       if (backbone != null) 'backbone': backbone,
       if (insertGene != null) 'insert_gene': insertGene,
-      if (tag != null) 'tag': tag,
       if (promoter != null) 'promoter': promoter,
-      if (antibioticResistance != null)
-        'antibiotic_resistance': antibioticResistance,
-      if (origin != null) 'origin': origin,
-      if (cloningStatus != null) 'cloning_status': cloningStatus,
-      if (sequenceVerified != null) 'sequence_verified': sequenceVerified,
-      if (storageLocation != null) 'storage_location': storageLocation,
-      if (concentration != null) 'concentration': concentration,
+      if (tag != null) 'tag': tag,
+      if (bacterialAntibiotic != null)
+        'bacterial_antibiotic': bacterialAntibiotic,
+      if (mammalianSelection != null) 'mammalian_selection': mammalianSelection,
+      if (ori != null) 'ori': ori,
+      if (sizeBp != null) 'size_bp': sizeBp,
+      if (genbankUrl != null) 'genbank_url': genbankUrl,
+      if (snapgeneUrl != null) 'snapgene_url': snapgeneUrl,
       if (notes != null) 'notes': notes,
+      if (isCloningSelectable != null)
+        'is_cloning_selectable': isCloningSelectable,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -3310,33 +3237,41 @@ class PlasmidsCompanion extends UpdateCompanion<Plasmid> {
   PlasmidsCompanion copyWith(
       {Value<int>? id,
       Value<String>? plasmidName,
+      Value<String?>? alias,
+      Value<String>? sourceType,
+      Value<String?>? addgeneId,
       Value<String?>? backbone,
       Value<String?>? insertGene,
-      Value<String?>? tag,
       Value<String?>? promoter,
-      Value<String?>? antibioticResistance,
-      Value<String?>? origin,
-      Value<String?>? cloningStatus,
-      Value<bool>? sequenceVerified,
-      Value<String?>? storageLocation,
-      Value<String?>? concentration,
+      Value<String?>? tag,
+      Value<String?>? bacterialAntibiotic,
+      Value<String?>? mammalianSelection,
+      Value<String?>? ori,
+      Value<int?>? sizeBp,
+      Value<String?>? genbankUrl,
+      Value<String?>? snapgeneUrl,
       Value<String?>? notes,
+      Value<bool>? isCloningSelectable,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
     return PlasmidsCompanion(
       id: id ?? this.id,
       plasmidName: plasmidName ?? this.plasmidName,
+      alias: alias ?? this.alias,
+      sourceType: sourceType ?? this.sourceType,
+      addgeneId: addgeneId ?? this.addgeneId,
       backbone: backbone ?? this.backbone,
       insertGene: insertGene ?? this.insertGene,
-      tag: tag ?? this.tag,
       promoter: promoter ?? this.promoter,
-      antibioticResistance: antibioticResistance ?? this.antibioticResistance,
-      origin: origin ?? this.origin,
-      cloningStatus: cloningStatus ?? this.cloningStatus,
-      sequenceVerified: sequenceVerified ?? this.sequenceVerified,
-      storageLocation: storageLocation ?? this.storageLocation,
-      concentration: concentration ?? this.concentration,
+      tag: tag ?? this.tag,
+      bacterialAntibiotic: bacterialAntibiotic ?? this.bacterialAntibiotic,
+      mammalianSelection: mammalianSelection ?? this.mammalianSelection,
+      ori: ori ?? this.ori,
+      sizeBp: sizeBp ?? this.sizeBp,
+      genbankUrl: genbankUrl ?? this.genbankUrl,
+      snapgeneUrl: snapgeneUrl ?? this.snapgeneUrl,
       notes: notes ?? this.notes,
+      isCloningSelectable: isCloningSelectable ?? this.isCloningSelectable,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -3351,39 +3286,50 @@ class PlasmidsCompanion extends UpdateCompanion<Plasmid> {
     if (plasmidName.present) {
       map['plasmid_name'] = Variable<String>(plasmidName.value);
     }
+    if (alias.present) {
+      map['alias'] = Variable<String>(alias.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (addgeneId.present) {
+      map['addgene_id'] = Variable<String>(addgeneId.value);
+    }
     if (backbone.present) {
       map['backbone'] = Variable<String>(backbone.value);
     }
     if (insertGene.present) {
       map['insert_gene'] = Variable<String>(insertGene.value);
     }
-    if (tag.present) {
-      map['tag'] = Variable<String>(tag.value);
-    }
     if (promoter.present) {
       map['promoter'] = Variable<String>(promoter.value);
     }
-    if (antibioticResistance.present) {
-      map['antibiotic_resistance'] =
-          Variable<String>(antibioticResistance.value);
+    if (tag.present) {
+      map['tag'] = Variable<String>(tag.value);
     }
-    if (origin.present) {
-      map['origin'] = Variable<String>(origin.value);
+    if (bacterialAntibiotic.present) {
+      map['bacterial_antibiotic'] = Variable<String>(bacterialAntibiotic.value);
     }
-    if (cloningStatus.present) {
-      map['cloning_status'] = Variable<String>(cloningStatus.value);
+    if (mammalianSelection.present) {
+      map['mammalian_selection'] = Variable<String>(mammalianSelection.value);
     }
-    if (sequenceVerified.present) {
-      map['sequence_verified'] = Variable<bool>(sequenceVerified.value);
+    if (ori.present) {
+      map['ori'] = Variable<String>(ori.value);
     }
-    if (storageLocation.present) {
-      map['storage_location'] = Variable<String>(storageLocation.value);
+    if (sizeBp.present) {
+      map['size_bp'] = Variable<int>(sizeBp.value);
     }
-    if (concentration.present) {
-      map['concentration'] = Variable<String>(concentration.value);
+    if (genbankUrl.present) {
+      map['genbank_url'] = Variable<String>(genbankUrl.value);
+    }
+    if (snapgeneUrl.present) {
+      map['snapgene_url'] = Variable<String>(snapgeneUrl.value);
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
+    }
+    if (isCloningSelectable.present) {
+      map['is_cloning_selectable'] = Variable<bool>(isCloningSelectable.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -3399,17 +3345,21 @@ class PlasmidsCompanion extends UpdateCompanion<Plasmid> {
     return (StringBuffer('PlasmidsCompanion(')
           ..write('id: $id, ')
           ..write('plasmidName: $plasmidName, ')
+          ..write('alias: $alias, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('addgeneId: $addgeneId, ')
           ..write('backbone: $backbone, ')
           ..write('insertGene: $insertGene, ')
-          ..write('tag: $tag, ')
           ..write('promoter: $promoter, ')
-          ..write('antibioticResistance: $antibioticResistance, ')
-          ..write('origin: $origin, ')
-          ..write('cloningStatus: $cloningStatus, ')
-          ..write('sequenceVerified: $sequenceVerified, ')
-          ..write('storageLocation: $storageLocation, ')
-          ..write('concentration: $concentration, ')
+          ..write('tag: $tag, ')
+          ..write('bacterialAntibiotic: $bacterialAntibiotic, ')
+          ..write('mammalianSelection: $mammalianSelection, ')
+          ..write('ori: $ori, ')
+          ..write('sizeBp: $sizeBp, ')
+          ..write('genbankUrl: $genbankUrl, ')
+          ..write('snapgeneUrl: $snapgeneUrl, ')
           ..write('notes: $notes, ')
+          ..write('isCloningSelectable: $isCloningSelectable, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -4017,21 +3967,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$ExperimentRecordsTableCreateCompanionBuilder
     = ExperimentRecordsCompanion Function({
   Value<int> id,
-  required String module,
-  required String title,
-  Value<String?> objective,
-  Value<String?> sampleId,
+  Value<String> module,
+  Value<String> title,
   Value<String?> notes,
-  required DateTime createdAt,
-  required DateTime updatedAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
 });
 typedef $$ExperimentRecordsTableUpdateCompanionBuilder
     = ExperimentRecordsCompanion Function({
   Value<int> id,
   Value<String> module,
   Value<String> title,
-  Value<String?> objective,
-  Value<String?> sampleId,
   Value<String?> notes,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -4054,12 +4000,6 @@ class $$ExperimentRecordsTableFilterComposer
 
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get objective => $composableBuilder(
-      column: $table.objective, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get sampleId => $composableBuilder(
-      column: $table.sampleId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
@@ -4089,12 +4029,6 @@ class $$ExperimentRecordsTableOrderingComposer
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get objective => $composableBuilder(
-      column: $table.objective, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get sampleId => $composableBuilder(
-      column: $table.sampleId, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
@@ -4122,12 +4056,6 @@ class $$ExperimentRecordsTableAnnotationComposer
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get objective =>
-      $composableBuilder(column: $table.objective, builder: (column) => column);
-
-  GeneratedColumn<String> get sampleId =>
-      $composableBuilder(column: $table.sampleId, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -4170,8 +4098,6 @@ class $$ExperimentRecordsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> module = const Value.absent(),
             Value<String> title = const Value.absent(),
-            Value<String?> objective = const Value.absent(),
-            Value<String?> sampleId = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -4180,28 +4106,22 @@ class $$ExperimentRecordsTableTableManager extends RootTableManager<
             id: id,
             module: module,
             title: title,
-            objective: objective,
-            sampleId: sampleId,
             notes: notes,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required String module,
-            required String title,
-            Value<String?> objective = const Value.absent(),
-            Value<String?> sampleId = const Value.absent(),
+            Value<String> module = const Value.absent(),
+            Value<String> title = const Value.absent(),
             Value<String?> notes = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               ExperimentRecordsCompanion.insert(
             id: id,
             module: module,
             title: title,
-            objective: objective,
-            sampleId: sampleId,
             notes: notes,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -4232,31 +4152,25 @@ typedef $$CloningDetailsTableCreateCompanionBuilder = CloningDetailsCompanion
     Function({
   Value<int> id,
   required int experimentRecordId,
-  Value<String?> vector,
-  Value<String?> insertName,
-  Value<String?> tag,
-  Value<String?> selectionMarker,
-  Value<String?> expectedConstructSize,
-  Value<String?> cloneId,
-  Value<String?> screeningResult,
-  Value<String?> sequencingResult,
-  required DateTime createdAt,
-  required DateTime updatedAt,
+  Value<String?> cloningMethod,
+  Value<String?> enzyme1,
+  Value<String?> enzyme2,
+  Value<String?> notes,
+  Value<int?> vectorPlasmidId,
+  Value<int?> insertPlasmidId,
+  Value<int?> destinationPlasmidId,
 });
 typedef $$CloningDetailsTableUpdateCompanionBuilder = CloningDetailsCompanion
     Function({
   Value<int> id,
   Value<int> experimentRecordId,
-  Value<String?> vector,
-  Value<String?> insertName,
-  Value<String?> tag,
-  Value<String?> selectionMarker,
-  Value<String?> expectedConstructSize,
-  Value<String?> cloneId,
-  Value<String?> screeningResult,
-  Value<String?> sequencingResult,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
+  Value<String?> cloningMethod,
+  Value<String?> enzyme1,
+  Value<String?> enzyme2,
+  Value<String?> notes,
+  Value<int?> vectorPlasmidId,
+  Value<int?> insertPlasmidId,
+  Value<int?> destinationPlasmidId,
 });
 
 class $$CloningDetailsTableFilterComposer
@@ -4275,39 +4189,29 @@ class $$CloningDetailsTableFilterComposer
       column: $table.experimentRecordId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get vector => $composableBuilder(
-      column: $table.vector, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get cloningMethod => $composableBuilder(
+      column: $table.cloningMethod, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get insertName => $composableBuilder(
-      column: $table.insertName, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get enzyme1 => $composableBuilder(
+      column: $table.enzyme1, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get tag => $composableBuilder(
-      column: $table.tag, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get enzyme2 => $composableBuilder(
+      column: $table.enzyme2, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get selectionMarker => $composableBuilder(
-      column: $table.selectionMarker,
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get vectorPlasmidId => $composableBuilder(
+      column: $table.vectorPlasmidId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get expectedConstructSize => $composableBuilder(
-      column: $table.expectedConstructSize,
+  ColumnFilters<int> get insertPlasmidId => $composableBuilder(
+      column: $table.insertPlasmidId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get cloneId => $composableBuilder(
-      column: $table.cloneId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get screeningResult => $composableBuilder(
-      column: $table.screeningResult,
+  ColumnFilters<int> get destinationPlasmidId => $composableBuilder(
+      column: $table.destinationPlasmidId,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get sequencingResult => $composableBuilder(
-      column: $table.sequencingResult,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$CloningDetailsTableOrderingComposer
@@ -4326,39 +4230,30 @@ class $$CloningDetailsTableOrderingComposer
       column: $table.experimentRecordId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get vector => $composableBuilder(
-      column: $table.vector, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get insertName => $composableBuilder(
-      column: $table.insertName, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get tag => $composableBuilder(
-      column: $table.tag, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get selectionMarker => $composableBuilder(
-      column: $table.selectionMarker,
+  ColumnOrderings<String> get cloningMethod => $composableBuilder(
+      column: $table.cloningMethod,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get expectedConstructSize => $composableBuilder(
-      column: $table.expectedConstructSize,
+  ColumnOrderings<String> get enzyme1 => $composableBuilder(
+      column: $table.enzyme1, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get enzyme2 => $composableBuilder(
+      column: $table.enzyme2, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get vectorPlasmidId => $composableBuilder(
+      column: $table.vectorPlasmidId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get cloneId => $composableBuilder(
-      column: $table.cloneId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get screeningResult => $composableBuilder(
-      column: $table.screeningResult,
+  ColumnOrderings<int> get insertPlasmidId => $composableBuilder(
+      column: $table.insertPlasmidId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get sequencingResult => $composableBuilder(
-      column: $table.sequencingResult,
+  ColumnOrderings<int> get destinationPlasmidId => $composableBuilder(
+      column: $table.destinationPlasmidId,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$CloningDetailsTableAnnotationComposer
@@ -4376,35 +4271,26 @@ class $$CloningDetailsTableAnnotationComposer
   GeneratedColumn<int> get experimentRecordId => $composableBuilder(
       column: $table.experimentRecordId, builder: (column) => column);
 
-  GeneratedColumn<String> get vector =>
-      $composableBuilder(column: $table.vector, builder: (column) => column);
+  GeneratedColumn<String> get cloningMethod => $composableBuilder(
+      column: $table.cloningMethod, builder: (column) => column);
 
-  GeneratedColumn<String> get insertName => $composableBuilder(
-      column: $table.insertName, builder: (column) => column);
+  GeneratedColumn<String> get enzyme1 =>
+      $composableBuilder(column: $table.enzyme1, builder: (column) => column);
 
-  GeneratedColumn<String> get tag =>
-      $composableBuilder(column: $table.tag, builder: (column) => column);
+  GeneratedColumn<String> get enzyme2 =>
+      $composableBuilder(column: $table.enzyme2, builder: (column) => column);
 
-  GeneratedColumn<String> get selectionMarker => $composableBuilder(
-      column: $table.selectionMarker, builder: (column) => column);
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  GeneratedColumn<String> get expectedConstructSize => $composableBuilder(
-      column: $table.expectedConstructSize, builder: (column) => column);
+  GeneratedColumn<int> get vectorPlasmidId => $composableBuilder(
+      column: $table.vectorPlasmidId, builder: (column) => column);
 
-  GeneratedColumn<String> get cloneId =>
-      $composableBuilder(column: $table.cloneId, builder: (column) => column);
+  GeneratedColumn<int> get insertPlasmidId => $composableBuilder(
+      column: $table.insertPlasmidId, builder: (column) => column);
 
-  GeneratedColumn<String> get screeningResult => $composableBuilder(
-      column: $table.screeningResult, builder: (column) => column);
-
-  GeneratedColumn<String> get sequencingResult => $composableBuilder(
-      column: $table.sequencingResult, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+  GeneratedColumn<int> get destinationPlasmidId => $composableBuilder(
+      column: $table.destinationPlasmidId, builder: (column) => column);
 }
 
 class $$CloningDetailsTableTableManager extends RootTableManager<
@@ -4436,58 +4322,46 @@ class $$CloningDetailsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> experimentRecordId = const Value.absent(),
-            Value<String?> vector = const Value.absent(),
-            Value<String?> insertName = const Value.absent(),
-            Value<String?> tag = const Value.absent(),
-            Value<String?> selectionMarker = const Value.absent(),
-            Value<String?> expectedConstructSize = const Value.absent(),
-            Value<String?> cloneId = const Value.absent(),
-            Value<String?> screeningResult = const Value.absent(),
-            Value<String?> sequencingResult = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
+            Value<String?> cloningMethod = const Value.absent(),
+            Value<String?> enzyme1 = const Value.absent(),
+            Value<String?> enzyme2 = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int?> vectorPlasmidId = const Value.absent(),
+            Value<int?> insertPlasmidId = const Value.absent(),
+            Value<int?> destinationPlasmidId = const Value.absent(),
           }) =>
               CloningDetailsCompanion(
             id: id,
             experimentRecordId: experimentRecordId,
-            vector: vector,
-            insertName: insertName,
-            tag: tag,
-            selectionMarker: selectionMarker,
-            expectedConstructSize: expectedConstructSize,
-            cloneId: cloneId,
-            screeningResult: screeningResult,
-            sequencingResult: sequencingResult,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
+            cloningMethod: cloningMethod,
+            enzyme1: enzyme1,
+            enzyme2: enzyme2,
+            notes: notes,
+            vectorPlasmidId: vectorPlasmidId,
+            insertPlasmidId: insertPlasmidId,
+            destinationPlasmidId: destinationPlasmidId,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required int experimentRecordId,
-            Value<String?> vector = const Value.absent(),
-            Value<String?> insertName = const Value.absent(),
-            Value<String?> tag = const Value.absent(),
-            Value<String?> selectionMarker = const Value.absent(),
-            Value<String?> expectedConstructSize = const Value.absent(),
-            Value<String?> cloneId = const Value.absent(),
-            Value<String?> screeningResult = const Value.absent(),
-            Value<String?> sequencingResult = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
+            Value<String?> cloningMethod = const Value.absent(),
+            Value<String?> enzyme1 = const Value.absent(),
+            Value<String?> enzyme2 = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int?> vectorPlasmidId = const Value.absent(),
+            Value<int?> insertPlasmidId = const Value.absent(),
+            Value<int?> destinationPlasmidId = const Value.absent(),
           }) =>
               CloningDetailsCompanion.insert(
             id: id,
             experimentRecordId: experimentRecordId,
-            vector: vector,
-            insertName: insertName,
-            tag: tag,
-            selectionMarker: selectionMarker,
-            expectedConstructSize: expectedConstructSize,
-            cloneId: cloneId,
-            screeningResult: screeningResult,
-            sequencingResult: sequencingResult,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
+            cloningMethod: cloningMethod,
+            enzyme1: enzyme1,
+            enzyme2: enzyme2,
+            notes: notes,
+            vectorPlasmidId: vectorPlasmidId,
+            insertPlasmidId: insertPlasmidId,
+            destinationPlasmidId: destinationPlasmidId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -5279,34 +5153,42 @@ typedef $$PurificationDetailsTableProcessedTableManager = ProcessedTableManager<
 typedef $$PlasmidsTableCreateCompanionBuilder = PlasmidsCompanion Function({
   Value<int> id,
   required String plasmidName,
+  Value<String?> alias,
+  Value<String> sourceType,
+  Value<String?> addgeneId,
   Value<String?> backbone,
   Value<String?> insertGene,
-  Value<String?> tag,
   Value<String?> promoter,
-  Value<String?> antibioticResistance,
-  Value<String?> origin,
-  Value<String?> cloningStatus,
-  Value<bool> sequenceVerified,
-  Value<String?> storageLocation,
-  Value<String?> concentration,
+  Value<String?> tag,
+  Value<String?> bacterialAntibiotic,
+  Value<String?> mammalianSelection,
+  Value<String?> ori,
+  Value<int?> sizeBp,
+  Value<String?> genbankUrl,
+  Value<String?> snapgeneUrl,
   Value<String?> notes,
-  required DateTime createdAt,
-  required DateTime updatedAt,
+  Value<bool> isCloningSelectable,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
 });
 typedef $$PlasmidsTableUpdateCompanionBuilder = PlasmidsCompanion Function({
   Value<int> id,
   Value<String> plasmidName,
+  Value<String?> alias,
+  Value<String> sourceType,
+  Value<String?> addgeneId,
   Value<String?> backbone,
   Value<String?> insertGene,
-  Value<String?> tag,
   Value<String?> promoter,
-  Value<String?> antibioticResistance,
-  Value<String?> origin,
-  Value<String?> cloningStatus,
-  Value<bool> sequenceVerified,
-  Value<String?> storageLocation,
-  Value<String?> concentration,
+  Value<String?> tag,
+  Value<String?> bacterialAntibiotic,
+  Value<String?> mammalianSelection,
+  Value<String?> ori,
+  Value<int?> sizeBp,
+  Value<String?> genbankUrl,
+  Value<String?> snapgeneUrl,
   Value<String?> notes,
+  Value<bool> isCloningSelectable,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -5326,41 +5208,53 @@ class $$PlasmidsTableFilterComposer
   ColumnFilters<String> get plasmidName => $composableBuilder(
       column: $table.plasmidName, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get alias => $composableBuilder(
+      column: $table.alias, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get addgeneId => $composableBuilder(
+      column: $table.addgeneId, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get backbone => $composableBuilder(
       column: $table.backbone, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get insertGene => $composableBuilder(
       column: $table.insertGene, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get tag => $composableBuilder(
-      column: $table.tag, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get promoter => $composableBuilder(
       column: $table.promoter, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get antibioticResistance => $composableBuilder(
-      column: $table.antibioticResistance,
+  ColumnFilters<String> get tag => $composableBuilder(
+      column: $table.tag, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bacterialAntibiotic => $composableBuilder(
+      column: $table.bacterialAntibiotic,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get origin => $composableBuilder(
-      column: $table.origin, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get cloningStatus => $composableBuilder(
-      column: $table.cloningStatus, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get sequenceVerified => $composableBuilder(
-      column: $table.sequenceVerified,
+  ColumnFilters<String> get mammalianSelection => $composableBuilder(
+      column: $table.mammalianSelection,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get storageLocation => $composableBuilder(
-      column: $table.storageLocation,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ori => $composableBuilder(
+      column: $table.ori, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get concentration => $composableBuilder(
-      column: $table.concentration, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get sizeBp => $composableBuilder(
+      column: $table.sizeBp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get genbankUrl => $composableBuilder(
+      column: $table.genbankUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get snapgeneUrl => $composableBuilder(
+      column: $table.snapgeneUrl, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isCloningSelectable => $composableBuilder(
+      column: $table.isCloningSelectable,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -5384,43 +5278,53 @@ class $$PlasmidsTableOrderingComposer
   ColumnOrderings<String> get plasmidName => $composableBuilder(
       column: $table.plasmidName, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get alias => $composableBuilder(
+      column: $table.alias, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get addgeneId => $composableBuilder(
+      column: $table.addgeneId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get backbone => $composableBuilder(
       column: $table.backbone, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get insertGene => $composableBuilder(
       column: $table.insertGene, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get tag => $composableBuilder(
-      column: $table.tag, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get promoter => $composableBuilder(
       column: $table.promoter, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get antibioticResistance => $composableBuilder(
-      column: $table.antibioticResistance,
+  ColumnOrderings<String> get tag => $composableBuilder(
+      column: $table.tag, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bacterialAntibiotic => $composableBuilder(
+      column: $table.bacterialAntibiotic,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get origin => $composableBuilder(
-      column: $table.origin, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get cloningStatus => $composableBuilder(
-      column: $table.cloningStatus,
+  ColumnOrderings<String> get mammalianSelection => $composableBuilder(
+      column: $table.mammalianSelection,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<bool> get sequenceVerified => $composableBuilder(
-      column: $table.sequenceVerified,
-      builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ori => $composableBuilder(
+      column: $table.ori, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get storageLocation => $composableBuilder(
-      column: $table.storageLocation,
-      builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get sizeBp => $composableBuilder(
+      column: $table.sizeBp, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get concentration => $composableBuilder(
-      column: $table.concentration,
-      builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get genbankUrl => $composableBuilder(
+      column: $table.genbankUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get snapgeneUrl => $composableBuilder(
+      column: $table.snapgeneUrl, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isCloningSelectable => $composableBuilder(
+      column: $table.isCloningSelectable,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
@@ -5444,38 +5348,50 @@ class $$PlasmidsTableAnnotationComposer
   GeneratedColumn<String> get plasmidName => $composableBuilder(
       column: $table.plasmidName, builder: (column) => column);
 
+  GeneratedColumn<String> get alias =>
+      $composableBuilder(column: $table.alias, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get addgeneId =>
+      $composableBuilder(column: $table.addgeneId, builder: (column) => column);
+
   GeneratedColumn<String> get backbone =>
       $composableBuilder(column: $table.backbone, builder: (column) => column);
 
   GeneratedColumn<String> get insertGene => $composableBuilder(
       column: $table.insertGene, builder: (column) => column);
 
-  GeneratedColumn<String> get tag =>
-      $composableBuilder(column: $table.tag, builder: (column) => column);
-
   GeneratedColumn<String> get promoter =>
       $composableBuilder(column: $table.promoter, builder: (column) => column);
 
-  GeneratedColumn<String> get antibioticResistance => $composableBuilder(
-      column: $table.antibioticResistance, builder: (column) => column);
+  GeneratedColumn<String> get tag =>
+      $composableBuilder(column: $table.tag, builder: (column) => column);
 
-  GeneratedColumn<String> get origin =>
-      $composableBuilder(column: $table.origin, builder: (column) => column);
+  GeneratedColumn<String> get bacterialAntibiotic => $composableBuilder(
+      column: $table.bacterialAntibiotic, builder: (column) => column);
 
-  GeneratedColumn<String> get cloningStatus => $composableBuilder(
-      column: $table.cloningStatus, builder: (column) => column);
+  GeneratedColumn<String> get mammalianSelection => $composableBuilder(
+      column: $table.mammalianSelection, builder: (column) => column);
 
-  GeneratedColumn<bool> get sequenceVerified => $composableBuilder(
-      column: $table.sequenceVerified, builder: (column) => column);
+  GeneratedColumn<String> get ori =>
+      $composableBuilder(column: $table.ori, builder: (column) => column);
 
-  GeneratedColumn<String> get storageLocation => $composableBuilder(
-      column: $table.storageLocation, builder: (column) => column);
+  GeneratedColumn<int> get sizeBp =>
+      $composableBuilder(column: $table.sizeBp, builder: (column) => column);
 
-  GeneratedColumn<String> get concentration => $composableBuilder(
-      column: $table.concentration, builder: (column) => column);
+  GeneratedColumn<String> get genbankUrl => $composableBuilder(
+      column: $table.genbankUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get snapgeneUrl => $composableBuilder(
+      column: $table.snapgeneUrl, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCloningSelectable => $composableBuilder(
+      column: $table.isCloningSelectable, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5509,68 +5425,84 @@ class $$PlasmidsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> plasmidName = const Value.absent(),
+            Value<String?> alias = const Value.absent(),
+            Value<String> sourceType = const Value.absent(),
+            Value<String?> addgeneId = const Value.absent(),
             Value<String?> backbone = const Value.absent(),
             Value<String?> insertGene = const Value.absent(),
-            Value<String?> tag = const Value.absent(),
             Value<String?> promoter = const Value.absent(),
-            Value<String?> antibioticResistance = const Value.absent(),
-            Value<String?> origin = const Value.absent(),
-            Value<String?> cloningStatus = const Value.absent(),
-            Value<bool> sequenceVerified = const Value.absent(),
-            Value<String?> storageLocation = const Value.absent(),
-            Value<String?> concentration = const Value.absent(),
+            Value<String?> tag = const Value.absent(),
+            Value<String?> bacterialAntibiotic = const Value.absent(),
+            Value<String?> mammalianSelection = const Value.absent(),
+            Value<String?> ori = const Value.absent(),
+            Value<int?> sizeBp = const Value.absent(),
+            Value<String?> genbankUrl = const Value.absent(),
+            Value<String?> snapgeneUrl = const Value.absent(),
             Value<String?> notes = const Value.absent(),
+            Value<bool> isCloningSelectable = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               PlasmidsCompanion(
             id: id,
             plasmidName: plasmidName,
+            alias: alias,
+            sourceType: sourceType,
+            addgeneId: addgeneId,
             backbone: backbone,
             insertGene: insertGene,
-            tag: tag,
             promoter: promoter,
-            antibioticResistance: antibioticResistance,
-            origin: origin,
-            cloningStatus: cloningStatus,
-            sequenceVerified: sequenceVerified,
-            storageLocation: storageLocation,
-            concentration: concentration,
+            tag: tag,
+            bacterialAntibiotic: bacterialAntibiotic,
+            mammalianSelection: mammalianSelection,
+            ori: ori,
+            sizeBp: sizeBp,
+            genbankUrl: genbankUrl,
+            snapgeneUrl: snapgeneUrl,
             notes: notes,
+            isCloningSelectable: isCloningSelectable,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String plasmidName,
+            Value<String?> alias = const Value.absent(),
+            Value<String> sourceType = const Value.absent(),
+            Value<String?> addgeneId = const Value.absent(),
             Value<String?> backbone = const Value.absent(),
             Value<String?> insertGene = const Value.absent(),
-            Value<String?> tag = const Value.absent(),
             Value<String?> promoter = const Value.absent(),
-            Value<String?> antibioticResistance = const Value.absent(),
-            Value<String?> origin = const Value.absent(),
-            Value<String?> cloningStatus = const Value.absent(),
-            Value<bool> sequenceVerified = const Value.absent(),
-            Value<String?> storageLocation = const Value.absent(),
-            Value<String?> concentration = const Value.absent(),
+            Value<String?> tag = const Value.absent(),
+            Value<String?> bacterialAntibiotic = const Value.absent(),
+            Value<String?> mammalianSelection = const Value.absent(),
+            Value<String?> ori = const Value.absent(),
+            Value<int?> sizeBp = const Value.absent(),
+            Value<String?> genbankUrl = const Value.absent(),
+            Value<String?> snapgeneUrl = const Value.absent(),
             Value<String?> notes = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
+            Value<bool> isCloningSelectable = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               PlasmidsCompanion.insert(
             id: id,
             plasmidName: plasmidName,
+            alias: alias,
+            sourceType: sourceType,
+            addgeneId: addgeneId,
             backbone: backbone,
             insertGene: insertGene,
-            tag: tag,
             promoter: promoter,
-            antibioticResistance: antibioticResistance,
-            origin: origin,
-            cloningStatus: cloningStatus,
-            sequenceVerified: sequenceVerified,
-            storageLocation: storageLocation,
-            concentration: concentration,
+            tag: tag,
+            bacterialAntibiotic: bacterialAntibiotic,
+            mammalianSelection: mammalianSelection,
+            ori: ori,
+            sizeBp: sizeBp,
+            genbankUrl: genbankUrl,
+            snapgeneUrl: snapgeneUrl,
             notes: notes,
+            isCloningSelectable: isCloningSelectable,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),

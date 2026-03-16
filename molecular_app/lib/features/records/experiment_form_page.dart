@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:molecular_app/database/app_database.dart';
+import 'package:drift/drift.dart' show Value;
 
 class ExperimentFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -36,13 +37,11 @@ class _ExperimentFormPageState extends State<ExperimentFormPage> {
 
     final now = DateTime.now();
 
-    await widget.database.createExperimentRecord(
-      ExperimentRecordsCompanion.insert(
-        title: title,
-        module: widget.module,
-        createdAt: now,
-        updatedAt: now,
-      ),
+    final experiment = ExperimentRecordsCompanion(
+      title: Value(_titleController.text.trim()),
+      module: const Value('General'),
+      createdAt: Value(now),
+      updatedAt: Value(now),
     );
 
     if (!mounted) return;

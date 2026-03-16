@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../database/app_database.dart';
+import 'package:drift/drift.dart' show Value;
 
 class SirnaFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -70,13 +71,11 @@ class _SirnaFormPageState extends State<SirnaFormPage> {
     try {
       final now = DateTime.now();
 
-      await widget.database.createExperimentRecord(
-        ExperimentRecordsCompanion.insert(
-          title: _titleController.text.trim(),
-          module: 'siRNA Treatment',
-          createdAt: now,
-          updatedAt: now,
-        ),
+      final experiment = ExperimentRecordsCompanion(
+        title: Value(_titleController.text.trim()),
+        module: const Value('Cloning'),
+        createdAt: Value(now),
+        updatedAt: Value(now),
       );
 
       if (!mounted) return;

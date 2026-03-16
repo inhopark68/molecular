@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:molecular_app/database/app_database.dart';
+import 'package:drift/drift.dart' show Value;
 
 class TransfectionFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -67,13 +68,11 @@ class _TransfectionFormPageState extends State<TransfectionFormPage> {
     try {
       final now = DateTime.now();
 
-      await widget.database.createExperimentRecord(
-        ExperimentRecordsCompanion.insert(
-          title: _titleController.text.trim(),
-          module: 'Transfection',
-          createdAt: now,
-          updatedAt: now,
-        ),
+      final experiment = ExperimentRecordsCompanion(
+        title: Value(_titleController.text.trim()),
+        module: const Value('Cloning'),
+        createdAt: Value(now),
+        updatedAt: Value(now),
       );
 
       if (!mounted) return;
