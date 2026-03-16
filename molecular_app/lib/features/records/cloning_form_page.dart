@@ -37,8 +37,6 @@ class _CloningFormPageState extends State<CloningFormPage> {
   final _customPlasmidController = TextEditingController();
   final _vectorNotesController = TextEditingController();
   final _selectedColonyController = TextEditingController();
-  final _sequencingPrimerController =
-      TextEditingController(text: 'T7 promoter');
   final _screeningNotesController = TextEditingController();
   final _additionalNotesController = TextEditingController();
 
@@ -46,6 +44,7 @@ class _CloningFormPageState extends State<CloningFormPage> {
   final _customAntibioticController = TextEditingController();
   final _transformationNotesController = TextEditingController();
   final _positiveCloneCountController = TextEditingController();
+  final _customSequencingPrimerController = TextEditingController();
 
   final List<String> _plasmidOptions = const [
     'pRSET',
@@ -101,6 +100,20 @@ class _CloningFormPageState extends State<CloningFormPage> {
     'Custom',
   ];
 
+  final List<String> _sequencingPrimerOptions = const [
+    'T7 promoter',
+    'T7 terminator',
+    'SP6',
+    'M13 Forward',
+    'M13 Reverse',
+    'CMV-F',
+    'BGH Reverse',
+    'SV40 Forward',
+    'Gene-specific Forward',
+    'Gene-specific Reverse',
+    'Custom',
+  ];
+
   String _selectedPlasmid = 'pRSET';
   String _selectedFrame = 'A';
   String _selectedDirection = '+';
@@ -109,6 +122,7 @@ class _CloningFormPageState extends State<CloningFormPage> {
   String _selectedHostBacteria = 'DH5α';
   String _selectedAntibiotic = 'Ampicillin';
   String _selectedScreeningMethod = 'Colony PCR';
+  String _selectedSequencingPrimer = 'T7 promoter';
   DateTime _selectedDate = DateTime.now();
 
   bool _restrictionDigestConfirmed = false;
@@ -129,13 +143,13 @@ class _CloningFormPageState extends State<CloningFormPage> {
     _customPlasmidController.dispose();
     _vectorNotesController.dispose();
     _selectedColonyController.dispose();
-    _sequencingPrimerController.dispose();
     _screeningNotesController.dispose();
     _additionalNotesController.dispose();
     _customHostBacteriaController.dispose();
     _customAntibioticController.dispose();
     _transformationNotesController.dispose();
     _positiveCloneCountController.dispose();
+    _customSequencingPrimerController.dispose();
     super.dispose();
   }
 
@@ -182,6 +196,12 @@ class _CloningFormPageState extends State<CloningFormPage> {
         : _selectedAntibiotic;
   }
 
+  String _resolvedSequencingPrimer() {
+    return _selectedSequencingPrimer == 'Custom'
+        ? _customSequencingPrimerController.text.trim()
+        : _selectedSequencingPrimer;
+  }
+
   Map<String, String> _buildSummaryMap() {
     return {
       'Experiment title': _experimentTitleController.text.trim(),
@@ -205,9 +225,9 @@ class _CloningFormPageState extends State<CloningFormPage> {
       'Colony PCR confirmed': _colonyPcrConfirmed ? 'Yes' : 'No',
       'Miniprep done': _miniprepDone ? 'Yes' : 'No',
       'Insert sequence verified': _insertSequenceVerified ? 'Yes' : 'No',
-      'Sequencing primer': _sequencingPrimerController.text.trim(),
-      'Vector notes': _vectorNotesController.text.trim(),
+      'Sequencing primer': _resolvedSequencingPrimer(),
       'Screening notes': _screeningNotesController.text.trim(),
+      'Vector notes': _vectorNotesController.text.trim(),
       'Additional notes': _additionalNotesController.text.trim(),
     };
   }
@@ -753,10 +773,29 @@ class _CloningFormPageState extends State<CloningFormPage> {
                   },
                 ),
                 const SizedBox(height: 12),
-                _buildTextField(
+                _buildDropdown<String>(
                   label: 'Sequencing primer',
-                  controller: _sequencingPrimerController,
+                  value: _selectedSequencingPrimer,
+                  values: _sequencingPrimerOptions,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _selectedSequencingPrimer = value);
+                  },
                 ),
+                if (_selectedSequencingPrimer == 'Custom') ...[
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Custom sequencing primer',
+                    controller: _customSequencingPrimerController,
+                    validator: (value) {
+                      if (_selectedSequencingPrimer == 'Custom' &&
+                          (value == null || value.trim().isEmpty)) {
+                        return 'Custom sequencing primer를 입력하세요.';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
                 const SizedBox(height: 12),
                 _buildTextField(
                   label: 'Additional notes',
