@@ -10,6 +10,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import 'package:molecular_app/database/app_database.dart';
+import 'package:molecular_app/features/ncbi/ncbi_models.dart';
+import 'package:molecular_app/features/ncbi/ncbi_service.dart';
 
 class CloningFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -45,16 +47,7 @@ class _CloningFormPageState extends State<CloningFormPage> {
   final _transformationNotesController = TextEditingController();
   final _positiveCloneCountController = TextEditingController();
   final _customSequencingPrimerController = TextEditingController();
-
-  final List<String> _plasmidOptions = const [
-    'pRSET',
-    'pcDNA3.1',
-    'pET-28a',
-    'pEGFP-N1',
-    'pCMV-Tag2B',
-    'pGEX-4T-1',
-    'Custom',
-  ];
+  final _customOrganismController = TextEditingController();
 
   final List<String> _plasmidFrames = ['A', 'B', 'C'];
   final List<String> _insertDirections = ['+', '-'];
@@ -114,7 +107,16 @@ class _CloningFormPageState extends State<CloningFormPage> {
     'Custom',
   ];
 
-  String _selectedPlasmid = 'pRSET';
+  final List<String> _organismOptions = const [
+    'Homo sapiens',
+    'Mus musculus',
+    'Rattus norvegicus',
+    'Custom',
+  ];
+
+  late final NcbiService _ncbiService;
+
+  String? _selectedPlasmid;
   String _selectedFrame = 'A';
   String _selectedDirection = '+';
   String _selectedFivePrimeSite = 'EcoRI';
@@ -123,12 +125,23 @@ class _CloningFormPageState extends State<CloningFormPage> {
   String _selectedAntibiotic = 'Ampicillin';
   String _selectedScreeningMethod = 'Colony PCR';
   String _selectedSequencingPrimer = 'T7 promoter';
+  String _selectedOrganism = 'Homo sapiens';
   DateTime _selectedDate = DateTime.now();
 
   bool _restrictionDigestConfirmed = false;
   bool _colonyPcrConfirmed = false;
   bool _miniprepDone = false;
   bool _insertSequenceVerified = false;
+  bool _isImportingNcbi = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ncbiService = NcbiService(
+      email: 'inhopark68@gmail.com',
+      tool: 'molecular_app',
+    );
+  }
 
   @override
   void dispose() {
@@ -150,6 +163,8 @@ class _CloningFormPageState extends State<CloningFormPage> {
     _transformationNotesController.dispose();
     _positiveCloneCountController.dispose();
     _customSequencingPrimerController.dispose();
+    _customOrganismController.dispose();
+    _ncbiService.dispose();
     super.dispose();
   }
 
@@ -166,10 +181,17 @@ class _CloningFormPageState extends State<CloningFormPage> {
     }
   }
 
+  String _resolvedOrganism() {
+    return _selectedOrganism == 'Custom'
+        ? _customOrganismController.text.trim()
+        : _selectedOrganism;
+  }
+
   String _resolvedPlasmidName() {
+    if (_selectedPlasmid == null) return '';
     return _selectedPlasmid == 'Custom'
         ? _customPlasmidController.text.trim()
-        : _selectedPlasmid;
+        : _selectedPlasmid!;
   }
 
   String _resolvedFivePrimeSite() {
@@ -207,8 +229,10 @@ class _CloningFormPageState extends State<CloningFormPage> {
       'Experiment title': _experimentTitleController.text.trim(),
       'Researcher': _researcherController.text.trim(),
       'Date': _selectedDate.toIso8601String().split('T').first,
-      'Plasmid':
-          '${_resolvedPlasmidName()} $_selectedFrame ($_selectedDirection)',
+      'Organism': _resolvedOrganism(),
+      'Plasmid': _resolvedPlasmidName().isEmpty
+          ? 'Not selected'
+          : '${_resolvedPlasmidName()} $_selectedFrame ($_selectedDirection)',
       '5\' restriction site': _resolvedFivePrimeSite(),
       '3\' restriction site': _resolvedThreePrimeSite(),
       'Insert gene': _geneNameController.text.trim(),
@@ -232,6 +256,134 @@ class _CloningFormPageState extends State<CloningFormPage> {
     };
   }
 
+  Future<NcbiGeneCandidate?> _pickGeneCandidate(
+    List<NcbiGeneCandidate> items,
+  ) async {
+    return showDialog<NcbiGeneCandidate>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Select NCBI Gene'),
+          content: SizedBox(
+            width: 600,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return ListTile(
+                  title: Text('${item.symbol} (${item.organism})'),
+                  subtitle: Text(
+                    '${item.description} • GeneID ${item.geneId}',
+                  ),
+                  onTap: () => Navigator.of(context).pop(item),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _importFromNcbi() async {
+    final geneSymbol = _geneNameController.text.trim();
+    final organism = _resolvedOrganism();
+
+    if (geneSymbol.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('먼저 gene symbol을 입력하세요.')),
+      );
+      return;
+    }
+
+    if (organism.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('먼저 organism을 선택하거나 입력하세요.')),
+      );
+      return;
+    }
+
+    setState(() => _isImportingNcbi = true);
+
+    try {
+      final candidates = await _ncbiService.searchGenes(
+        symbol: geneSymbol,
+        organism: organism,
+      );
+
+      if (candidates.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('NCBI에서 일치하는 gene을 찾지 못했습니다.')),
+        );
+        return;
+      }
+
+      final selectedCandidate = candidates.length == 1
+          ? candidates.first
+          : await _pickGeneCandidate(candidates);
+
+      if (selectedCandidate == null) return;
+
+      final result = await _ncbiService.importGene(
+        geneId: selectedCandidate.geneId,
+        organismHint: selectedCandidate.organism,
+        includePubMed: true,
+      );
+
+      _geneNameController.text = result.symbol;
+      _sourceController.text =
+          'NCBI Gene ${result.geneId} / ${result.organism}';
+
+      final preferredSequence =
+          (result.cdsSequence ?? '').isNotEmpty
+              ? result.cdsSequence!
+              : (result.nucleotideSequence ?? '');
+
+      if (preferredSequence.isNotEmpty) {
+        _geneSequenceController.text = preferredSequence;
+        _insertLengthController.text = preferredSequence.length.toString();
+      }
+
+      final notes = <String>[
+        if (result.description.isNotEmpty)
+          'Description: ${result.description}',
+        if ((result.summary ?? '').isNotEmpty)
+          'Summary: ${result.summary}',
+        if ((result.refseqRnaAccession ?? '').isNotEmpty)
+          'RefSeq RNA: ${result.refseqRnaAccession}',
+        if ((result.refseqProteinAccession ?? '').isNotEmpty)
+          'RefSeq Protein: ${result.refseqProteinAccession}',
+        if ((result.cdsSequence ?? '').isNotEmpty)
+          'Sequence type: CDS / ORF',
+        if ((result.cdsSequence ?? '').isEmpty &&
+            (result.nucleotideSequence ?? '').isNotEmpty)
+          'Sequence type: Transcript RNA',
+        if (result.pmids.isNotEmpty)
+          'PMIDs: ${result.pmids.join(', ')}',
+      ].join('\n');
+
+      _additionalNotesController.text = notes;
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('NCBI에서 ${result.symbol} 정보를 불러왔습니다.')),
+      );
+
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('NCBI 불러오기 실패: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isImportingNcbi = false);
+      }
+    }
+  }
+
   Future<void> _saveToDatabase() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -244,7 +396,7 @@ class _CloningFormPageState extends State<CloningFormPage> {
           updatedAt: DateTime.now(),
           notes: Value(jsonEncode(_buildSummaryMap())),
         ),
-        cloning: const CloningDetailsCompanion(),
+        cloning: CloningDetailsCompanion(),
       );
 
       if (!mounted) return;
@@ -417,6 +569,118 @@ class _CloningFormPageState extends State<CloningFormPage> {
     );
   }
 
+  Widget _buildPlasmidSelector() {
+    return StreamBuilder<List<Plasmid>>(
+      stream: widget.database.watchAllPlasmids(),
+      builder: (context, snapshot) {
+        final plasmids = snapshot.data ?? [];
+
+        final plasmidOptions = <String>[
+          ...plasmids
+              .map((p) => p.plasmidName)
+              .where((e) => e.trim().isNotEmpty)
+              .toSet(),
+          'Custom',
+        ];
+
+        if (_selectedPlasmid == null && plasmidOptions.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              _selectedPlasmid = plasmidOptions.first;
+            });
+          });
+        }
+
+        final selectedValue = (_selectedPlasmid != null &&
+                plasmidOptions.contains(_selectedPlasmid))
+            ? _selectedPlasmid
+            : (plasmidOptions.isNotEmpty ? plasmidOptions.first : 'Custom');
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownButtonFormField<String>(
+              value: selectedValue,
+              decoration: const InputDecoration(
+                labelText: 'Plasmid name',
+              ),
+              items: plasmidOptions
+                  .map(
+                    (item) => DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(item),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() => _selectedPlasmid = value);
+              },
+              validator: (value) {
+                if ((value == null || value.isEmpty) &&
+                    _customPlasmidController.text.trim().isEmpty) {
+                  return 'Plasmid를 선택하세요.';
+                }
+                return null;
+              },
+            ),
+            if (snapshot.connectionState == ConnectionState.waiting)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Loading plasmid list...'),
+              ),
+            if (_selectedPlasmid == 'Custom') ...[
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'Custom plasmid name',
+                controller: _customPlasmidController,
+                validator: (value) {
+                  if (_selectedPlasmid == 'Custom' &&
+                      (value == null || value.trim().isEmpty)) {
+                    return 'Custom plasmid 이름을 입력하세요.';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildOrganismSelector() {
+    return Column(
+      children: [
+        _buildDropdown<String>(
+          label: 'Organism',
+          value: _selectedOrganism,
+          values: _organismOptions,
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _selectedOrganism = value);
+          },
+        ),
+        if (_selectedOrganism == 'Custom') ...[
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Custom organism',
+            controller: _customOrganismController,
+            hintText: '예: Homo sapiens',
+            validator: (value) {
+              if (_selectedOrganism == 'Custom' &&
+                  (value == null || value.trim().isEmpty)) {
+                return 'Custom organism을 입력하세요.';
+              }
+              return null;
+            },
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final summary = _buildSummaryMap();
@@ -477,29 +741,7 @@ class _CloningFormPageState extends State<CloningFormPage> {
               title: '2. Plasmid 선택',
               subtitle: 'plasmid 종류, frame(A/B/C), insert 방향(+/-)을 선택합니다.',
               children: [
-                _buildDropdown<String>(
-                  label: 'Plasmid name',
-                  value: _selectedPlasmid,
-                  values: _plasmidOptions,
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => _selectedPlasmid = value);
-                  },
-                ),
-                if (_selectedPlasmid == 'Custom') ...[
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    label: 'Custom plasmid name',
-                    controller: _customPlasmidController,
-                    validator: (value) {
-                      if (_selectedPlasmid == 'Custom' &&
-                          (value == null || value.trim().isEmpty)) {
-                        return 'Custom plasmid 이름을 입력하세요.';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+                _buildPlasmidSelector(),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -607,6 +849,21 @@ class _CloningFormPageState extends State<CloningFormPage> {
                   validator: (value) => (value == null || value.trim().isEmpty)
                       ? 'Insert gene 이름을 입력하세요.'
                       : null,
+                ),
+                const SizedBox(height: 12),
+                _buildOrganismSelector(),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.icon(
+                    onPressed: _isImportingNcbi ? null : _importFromNcbi,
+                    icon: const Icon(Icons.download),
+                    label: Text(
+                      _isImportingNcbi
+                          ? 'Importing from NCBI...'
+                          : 'Import from NCBI',
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 _buildTextField(
