@@ -23,7 +23,7 @@ class PlasmidListPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => PlasmidFormPage(database: database),
+              builder: (_) => PlasmidFormPage(),
             ),
           );
         },

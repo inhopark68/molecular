@@ -1,4 +1,4 @@
-name: molecular_work_app
+name: molecular_app
 description: A starter Flutter app for organizing molecular biology workflows.
 publish_to: 'none'
 version: 1.0.0+1

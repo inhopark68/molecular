@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-
 import 'experiment_records.dart';
 
 class CloningDetails extends Table {
@@ -11,14 +10,11 @@ class CloningDetails extends Table {
         onDelete: KeyAction.cascade,
       )();
 
-  TextColumn get plasmidName =>
-      text().withDefault(const Constant(''))();
+  TextColumn get plasmidName => text().withDefault(const Constant(''))();
 
-  TextColumn get plasmidFrame =>
-      text().nullable()();
+  TextColumn get plasmidFrame => text().nullable()();
 
-  TextColumn get insertDirection =>
-      text().nullable()();
+  TextColumn get insertDirection => text().nullable()();
 
   TextColumn get fivePrimeRestrictionSite =>
       text().withDefault(const Constant(''))();
@@ -26,27 +22,18 @@ class CloningDetails extends Table {
   TextColumn get threePrimeRestrictionSite =>
       text().withDefault(const Constant(''))();
 
-  TextColumn get insertGeneName =>
-      text().withDefault(const Constant(''))();
+  TextColumn get insertGeneName => text().withDefault(const Constant(''))();
 
-  IntColumn get insertLengthBp =>
-      integer().nullable()();
+  IntColumn get insertLengthBp => integer().nullable()();
 
-  TextColumn get geneSource =>
-      text().withDefault(const Constant(''))();
+  TextColumn get geneSource => text().withDefault(const Constant(''))();
 
-  TextColumn get geneSequence =>
-      text().withDefault(const Constant(''))();
-
-  // --------------------------------------------------------------------------
-  // Construct screening and selection
-  // --------------------------------------------------------------------------
+  TextColumn get geneSequence => text().withDefault(const Constant(''))();
 
   TextColumn get screeningMethod =>
       text().withDefault(const Constant('Colony PCR'))();
 
-  TextColumn get selectedColony =>
-      text().withDefault(const Constant(''))();
+  TextColumn get selectedColony => text().withDefault(const Constant(''))();
 
   BoolColumn get restrictionDigestConfirmed =>
       boolean().withDefault(const Constant(false))();
@@ -63,12 +50,9 @@ class CloningDetails extends Table {
   TextColumn get sequencingPrimer =>
       text().withDefault(const Constant('T7 promoter'))();
 
-  TextColumn get screeningNotes =>
-      text().withDefault(const Constant(''))();
+  TextColumn get screeningNotes => text().withDefault(const Constant(''))();
 
-  TextColumn get vectorNotes =>
-      text().withDefault(const Constant(''))();
+  TextColumn get vectorNotes => text().withDefault(const Constant(''))();
 
-  TextColumn get summaryJson =>
-      text().withDefault(const Constant('{}'))();
+  TextColumn get summaryJson => text().withDefault(const Constant('{}'))();
 }

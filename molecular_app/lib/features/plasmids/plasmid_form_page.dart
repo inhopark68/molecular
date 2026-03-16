@@ -1,67 +1,112 @@
 import 'package:flutter/material.dart';
-import 'package:molecular_work_app/database/app_database.dart';
 
 class PlasmidFormPage extends StatefulWidget {
-  final AppDatabase database;
-
-  const PlasmidFormPage({
-    super.key,
-    required this.database,
-  });
+  const PlasmidFormPage({super.key});
 
   @override
   State<PlasmidFormPage> createState() => _PlasmidFormPageState();
 }
 
 class _PlasmidFormPageState extends State<PlasmidFormPage> {
-  final _nameController = TextEditingController();
+  final TextEditingController plasmidNameController = TextEditingController();
+  final TextEditingController insertGeneNameController = TextEditingController();
+  final TextEditingController vectorNotesController = TextEditingController();
+
+  bool restrictionDigestConfirmed = false;
+  bool colonyPcrConfirmed = false;
+  bool miniprepDone = false;
+  bool insertSequenceVerified = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    plasmidNameController.dispose();
+    insertGeneNameController.dispose();
+    vectorNotesController.dispose();
     super.dispose();
   }
 
-  Future<void> _save() async {
-    final name = _nameController.text.trim();
-
-    if (name.isEmpty) return;
-
-    final now = DateTime.now();
-
-    await widget.database.createPlasmid(
-      PlasmidsCompanion.insert(
-        plasmidName: name,
-        createdAt: now,
-        updatedAt: now,
-      ),
+  void _save() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Saved')),
     );
-
-    if (!mounted) return;
-    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Plasmid'),
+        title: const Text('Plasmid Form'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: _nameController,
+              controller: plasmidNameController,
               decoration: const InputDecoration(
-                labelText: 'Plasmid name',
+                labelText: 'Plasmid Name',
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            TextField(
+              controller: insertGeneNameController,
+              decoration: const InputDecoration(
+                labelText: 'Insert Gene Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: vectorNotesController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Vector Notes',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            CheckboxListTile(
+              title: const Text('Restriction Digest Confirmed'),
+              value: restrictionDigestConfirmed,
+              onChanged: (value) {
+                setState(() {
+                  restrictionDigestConfirmed = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('Colony PCR Confirmed'),
+              value: colonyPcrConfirmed,
+              onChanged: (value) {
+                setState(() {
+                  colonyPcrConfirmed = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('Miniprep Done'),
+              value: miniprepDone,
+              onChanged: (value) {
+                setState(() {
+                  miniprepDone = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('Insert Sequence Verified'),
+              value: insertSequenceVerified,
+              onChanged: (value) {
+                setState(() {
+                  insertSequenceVerified = value ?? false;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: ElevatedButton(
                 onPressed: _save,
                 child: const Text('Save'),
               ),

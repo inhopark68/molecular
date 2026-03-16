@@ -9,7 +9,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import 'package:molecular_work_app/database/app_database.dart';
+import 'package:molecular_app/database/app_database.dart';
 
 class CloningFormPage extends StatefulWidget {
   final AppDatabase database;

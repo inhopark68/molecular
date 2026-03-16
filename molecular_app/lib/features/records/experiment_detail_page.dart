@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:molecular_work_app/database/app_database.dart';
-import 'package:molecular_work_app/features/records/cloning_form_page.dart';
-import 'package:molecular_work_app/features/records/purification_form_page.dart';
-import 'package:molecular_work_app/features/records/sirna_form_page.dart';
-import 'package:molecular_work_app/features/records/transfection_form_page.dart';
+import 'package:molecular_app/database/app_database.dart';
+import 'package:molecular_app/features/records/cloning_form_page.dart';
+import 'package:molecular_app/features/records/purification_form_page.dart';
+import 'package:molecular_app/features/records/sirna_form_page.dart';
+import 'package:molecular_app/features/records/transfection_form_page.dart';
 
 class ExperimentDetailPage extends StatelessWidget {
   final AppDatabase database;

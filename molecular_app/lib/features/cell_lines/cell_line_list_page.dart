@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:molecular_work_app/database/app_database.dart';
-import 'package:molecular_work_app/features/cell_lines/cell_line_form_page.dart';
+import 'package:molecular_app/database/app_database.dart';
+import 'package:molecular_app/features/cell_lines/cell_line_form_page.dart';
 
 class CellLineListPage extends StatelessWidget {
   final AppDatabase database;

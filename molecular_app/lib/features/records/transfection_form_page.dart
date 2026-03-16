@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:molecular_work_app/database/app_database.dart';
+import 'package:molecular_app/database/app_database.dart';
 
 class TransfectionFormPage extends StatefulWidget {
   final AppDatabase database;
