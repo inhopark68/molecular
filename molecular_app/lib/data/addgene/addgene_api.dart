@@ -47,7 +47,7 @@ class AddgeneApi {
 
   AddgeneApi({
     required this.baseUrl,
-    this.bearerToken,
+    this.bearerToken: devapi-token-_VwYVxO4Cv5wqHrjCmS7IRP9TFgEYTsdWh_RHluegxA,
     http.Client? client,
   }) : _client = client ?? http.Client();
 

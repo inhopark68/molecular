@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
@@ -12,7 +11,6 @@ import 'package:printing/printing.dart';
 import 'package:molecular_app/database/app_database.dart';
 import 'package:molecular_app/features/ncbi/ncbi_models.dart';
 import 'package:molecular_app/features/ncbi/ncbi_service.dart';
-import 'package:drift/drift.dart' show Value;
 
 class CloningFormPage extends StatefulWidget {
   final AppDatabase database;
@@ -337,10 +335,9 @@ class _CloningFormPageState extends State<CloningFormPage> {
       _sourceController.text =
           'NCBI Gene ${result.geneId} / ${result.organism}';
 
-      final preferredSequence =
-          (result.cdsSequence ?? '').isNotEmpty
-              ? result.cdsSequence!
-              : (result.nucleotideSequence ?? '');
+      final preferredSequence = (result.cdsSequence ?? '').isNotEmpty
+          ? result.cdsSequence!
+          : (result.nucleotideSequence ?? '');
 
       if (preferredSequence.isNotEmpty) {
         _geneSequenceController.text = preferredSequence;
@@ -390,17 +387,61 @@ class _CloningFormPageState extends State<CloningFormPage> {
 
     try {
       final now = DateTime.now();
+      final selectedPlasmidName = _resolvedPlasmidName().trim();
+
+      int? vectorPlasmidId;
+
+      if (selectedPlasmidName.isNotEmpty) {
+        final plasmids = await widget.database.getAllPlasmids();
+        final matched = plasmids.cast<Plasmid?>().firstWhere(
+              (p) => p != null && p.plasmidName.trim() == selectedPlasmidName,
+              orElse: () => null,
+            );
+        vectorPlasmidId = matched?.id;
+      }
 
       final experiment = ExperimentRecordsCompanion(
-        title: Value(_titleController.text.trim()),
+        title: Value(_experimentTitleController.text.trim()),
         module: const Value('Cloning'),
         createdAt: Value(now),
         updatedAt: Value(now),
       );
 
+      final summary = _buildSummaryMap();
+      final notes = summary.entries
+          .map((entry) => '${entry.key}: ${entry.value}')
+          .join('\n');
+
+      final cloning = CloningDetailsCompanion(
+        cloningMethod: Value(
+          '$_selectedScreeningMethod / Frame $_selectedFrame / Direction $_selectedDirection',
+        ),
+        enzyme1: Value(
+          _resolvedFivePrimeSite().trim().isEmpty
+              ? null
+              : _resolvedFivePrimeSite().trim(),
+        ),
+        enzyme2: Value(
+          _resolvedThreePrimeSite().trim().isEmpty
+              ? null
+              : _resolvedThreePrimeSite().trim(),
+        ),
+        notes: Value(notes),
+        vectorPlasmidId: Value(vectorPlasmidId),
+        insertPlasmidId: const Value(null),
+        destinationPlasmidId: const Value(null),
+      );
+
+      final experimentId = await widget.database.createCloningExperiment(
+        experiment: experiment,
+        cloning: cloning,
+      );
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cloning record 저장 완료 (ID: $experimentId)')),
+        SnackBar(
+          content: Text('Cloning record 저장 완료 (ID: $experimentId)'),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -512,7 +553,10 @@ class _CloningFormPageState extends State<CloningFormPage> {
           children: [
             Text(
               title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
